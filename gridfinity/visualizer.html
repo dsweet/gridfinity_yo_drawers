@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gridfinity Bin Visualizer</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+    }
+    h1 { margin: 0 0 5px 0; font-size: 2.8rem; }
+    .subtitle { color: #888; margin-bottom: 15px; font-size: 0.85rem; }
+    .main-layout { display: flex; gap: 20px; flex-wrap: wrap; }
+    .left-col { display: flex; flex-direction: column; gap: 15px; }
+    .grid-container {
+      position: relative;
+      display: inline-block;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(9, 40px);
+      grid-template-rows: repeat(12, 40px);
+      gap: 1px;
+      background: #333;
+      padding: 1px;
+      border-radius: 4px;
+      position: relative;
+    }
+    .grid-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.05);
+      pointer-events: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+      line-height: 1.2;
+      z-index: 1;
+    }
+    .cell {
+      background: #2a2a4a;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .cell:hover { background: #3a3a6a; }
+    .cell.preview { background: rgba(100, 200, 100, 0.3); }
+    .cell.invalid { background: rgba(200, 100, 100, 0.3); }
+    .bin {
+      position: absolute;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.1s;
+      z-index: 2;
+    }
+    .bin:hover { filter: brightness(1.2); }
+    .right-col { flex: 1; min-width: 280px; max-width: 400px; }
+    .bin-section { margin-bottom: 12px; }
+    .bin-section h3 { margin: 0 0 6px 0; font-size: 0.8rem; color: #888; }
+    .bin-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .bin-option {
+      width: 42px;
+      padding: 6px 0;
+      border: 2px solid transparent;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.8rem;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .bin-option:hover { filter: brightness(1.1); }
+    .bin-option.selected { border-color: #fff; }
+        .stats-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      align-items: stretch;
+    }
+    .stat-box {
+      background: #2a2a4a;
+      border-radius: 5px;
+      padding: 8px 12px;
+      text-align: center;
+      min-width: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .stat-box .value { font-size: 1.1rem; font-weight: 600; }
+    .stat-box .label { font-size: 0.7rem; color: #888; }
+    .progress-container { flex: 1; min-width: 120px; display: flex; }
+    .progress-bar {
+      background: #2a2a4a;
+      border-radius: 5px;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2e769d, #5b91ad);
+      transition: width 0.3s ease;
+    }
+    .progress-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .actions-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.8rem;
+      background: #4a4a7a;
+      color: #fff;
+      transition: background 0.15s;
+    }
+    button:hover { background: #5a5a8a; }
+    .instructions {
+      font-size: 0.75rem;
+      color: #666;
+      margin-bottom: 12px;
+    }
+    .instructions span { margin-right: 15px; white-space: nowrap; }
+    .instructions strong { color: #888; }
+    .saved-section { margin-top: 15px; }
+    .saved-section h3 { margin: 0 0 8px 0; font-size: 0.8rem; color: #888; }
+    .saved-list { display: flex; gap: 8px; flex-wrap: wrap; }
+    .saved-item {
+      background: #2a2a4a;
+      border-radius: 5px;
+      padding: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .saved-item:hover { background: #3a3a6a; }
+    .saved-item .preview {
+      width: 75px;
+      height: 100px;
+      background: #1a1a2e;
+      border-radius: 3px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+    .saved-item .meta { font-size: 0.65rem; color: #888; }
+    .saved-item .delete { font-size: 0.6rem; color: #555; text-align: center; margin-top: 2px; }
+    .saved-item .delete:hover { color: #b56a6a; }
+    .empty-saved { color: #555; font-size: 0.75rem; }
+
+    /* Print styles */
+    @media print {
+      body { background: #fff; color: #000; padding: 10px; }
+      .right-col, .actions-row, .instructions, .saved-section { display: none !important; }
+      .grid { background: #ccc; }
+      .cell { background: #eee; }
+      .bin { color: #000; border: 1px solid #000; }
+      .grid-watermark { display: none; }
+      .print-only { display: block !important; }
+      .print-list { margin-top: 20px; }
+      .print-list h2 { font-size: 1.2rem; margin: 0 0 10px 0; }
+      .print-list table { border-collapse: collapse; width: 100%; }
+      .print-list th, .print-list td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+      .print-list th { background: #f0f0f0; }
+    }
+    .print-only { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Gridfinity Bin Visualizer</h1>
+  <p class="subtitle">9x12 Grid (108 cells) &bull; Drawer: 3.25" &bull; Max bin: 50mm</p>
+
+  <div class="main-layout">
+    <div class="left-col">
+      <div class="grid-container">
+        <div class="grid" id="grid"></div>
+        <div class="grid-watermark">Fill<br>Your<br>Drawer</div>
+      </div>
+      <div class="actions-row">
+        <button onclick="clearGrid()">Clear</button>
+        <button onclick="saveLayout()">Save</button>
+        <button onclick="loadLayout()">Load</button>
+        <button onclick="printBinList()">Print Bin List</button>
+      </div>
+      <div class="saved-section">
+        <h3>Saved Layouts</h3>
+        <div class="saved-list" id="savedList"></div>
+      </div>
+    </div>
+
+    <div class="right-col">
+      <div class="stats-row">
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            <span class="progress-text" id="progressText">0% Filled</span>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="value" id="cellCount">0/108</div>
+          <div class="label">Cells</div>
+        </div>
+        <div class="stat-box">
+          <div class="value" id="binCount">0</div>
+          <div class="label">Bins</div>
+        </div>
+      </div>
+
+      <div class="bin-section">
+        <h3>Square</h3>
+        <div class="bin-row" id="squareBins"></div>
+      </div>
+
+      <div class="bin-section">
+        <h3>Rectangular</h3>
+        <div class="bin-row" id="rectBins"></div>
+      </div>
+
+      <div class="bin-section">
+        <h3>Custom</h3>
+        <div class="bin-row" id="customBins"></div>
+      </div>
+
+      <div class="instructions">
+        <span><strong>Click</strong> grid to place</span>
+        <span><strong>Click</strong> bin to remove</span>
+        <span><strong>R</strong> to rotate</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="print-only print-list" id="printList"></div>
+
+  <script>
+    const GRID_WIDTH = 9;
+    const GRID_HEIGHT = 12;
+    const CELL_SIZE = 40;
+    const GAP = 1;
+
+    const BIN_TYPES = [
+      { w: 1, h: 1, color: '#7ca3b8' },
+      { w: 1, h: 2, color: '#6a9ab3' },
+      { w: 1, h: 3, color: '#5b91ad' },
+      { w: 2, h: 2, color: '#5b91ad' },
+      { w: 1, h: 4, color: '#4c88a8' },
+      { w: 2, h: 3, color: '#4c88a8' },
+      { w: 2, h: 4, color: '#3d7fa2' },
+      { w: 3, h: 3, color: '#3d7fa2' },
+      { w: 2, h: 6, color: '#2e769d' },
+      { w: 3, h: 4, color: '#2e769d' },
+      { w: 4, h: 4, color: '#1f6d97' },
+      { w: 3, h: 6, color: '#1f6d97' },
+      { w: 4, h: 6, color: '#106492' },
+      { w: 5, h: 5, color: '#106492' },
+    ];
+
+    let grid = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(null));
+    let bins = [];
+    let selectedBin = BIN_TYPES[0];
+    let customBin = null;
+    let rotated = false;
+    let binIdCounter = 0;
+
+    function getCurrentDimensions() {
+      const { w, h } = selectedBin;
+      return rotated && w !== h ? { w: h, h: w } : { w, h };
+    }
+
+    function rotateBin() {
+      if (selectedBin.w !== selectedBin.h) {
+        rotated = !rotated;
+                const hoverCell = document.querySelector('.cell:hover');
+        if (hoverCell) {
+          showPreview(parseInt(hoverCell.dataset.x), parseInt(hoverCell.dataset.y));
+        }
+      }
+    }
+
+    function init() {
+      renderGrid();
+      renderBinOptions();
+      updateStats();
+      renderSavedLayouts();
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'r' || e.key === 'R') rotateBin();
+      });
+    }
+
+    function renderGrid() {
+      const gridEl = document.getElementById('grid');
+      gridEl.innerHTML = '';
+
+      for (let y = 0; y < GRID_HEIGHT; y++) {
+        for (let x = 0; x < GRID_WIDTH; x++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.x = x;
+          cell.dataset.y = y;
+          cell.addEventListener('mouseenter', () => showPreview(x, y));
+          cell.addEventListener('mouseleave', clearPreview);
+          cell.addEventListener('click', () => placeBin(x, y));
+          gridEl.appendChild(cell);
+        }
+      }
+      renderBins();
+    }
+
+    function renderBins() {
+      const gridEl = document.getElementById('grid');
+      gridEl.querySelectorAll('.bin').forEach(b => b.remove());
+
+      bins.forEach(bin => {
+        const binEl = document.createElement('div');
+        binEl.className = 'bin';
+        binEl.style.left = `${bin.x * (CELL_SIZE + GAP) + GAP}px`;
+        binEl.style.top = `${bin.y * (CELL_SIZE + GAP) + GAP}px`;
+        binEl.style.width = `${bin.w * CELL_SIZE + (bin.w - 1) * GAP}px`;
+        binEl.style.height = `${bin.h * CELL_SIZE + (bin.h - 1) * GAP}px`;
+        binEl.style.background = bin.color;
+        binEl.textContent = `${bin.w}x${bin.h}`;
+        binEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeBin(bin.id);
+        });
+        gridEl.appendChild(binEl);
+      });
+    }
+
+    function renderBinOptions() {
+      const squareContainer = document.getElementById('squareBins');
+      const rectContainer = document.getElementById('rectBins');
+      const customContainer = document.getElementById('customBins');
+
+      squareContainer.innerHTML = '';
+      rectContainer.innerHTML = '';
+      customContainer.innerHTML = '';
+
+      BIN_TYPES.forEach(bin => {
+        const option = document.createElement('div');
+        option.className = `bin-option ${bin === selectedBin && !customBin ? 'selected' : ''}`;
+        option.style.background = bin.color;
+        option.textContent = `${bin.w}x${bin.h}`;
+        option.addEventListener('click', () => {
+          selectedBin = bin;
+          customBin = null;
+          rotated = false;
+          renderBinOptions();
+        });
+
+        if (bin.w === bin.h) {
+          squareContainer.appendChild(option);
+        } else {
+          rectContainer.appendChild(option);
+        }
+      });
+
+      const customOption = document.createElement('div');
+      customOption.className = `bin-option ${customBin ? 'selected' : ''}`;
+      customOption.style.background = '#4a6670';
+      customOption.textContent = customBin ? `${customBin.w}x${customBin.h}` : 'XxX';
+      customOption.addEventListener('click', promptCustomBin);
+      customContainer.appendChild(customOption);
+    }
+
+    function promptCustomBin() {
+      const width = prompt('Enter bin width (1-9):', customBin?.w || '');
+      if (width === null) return;
+      const w = parseInt(width);
+      if (isNaN(w) || w < 1 || w > GRID_WIDTH) {
+        alert(`Width must be between 1 and ${GRID_WIDTH}`);
+        return;
+      }
+
+      const height = prompt('Enter bin height (1-12):', customBin?.h || '');
+      if (height === null) return;
+      const h = parseInt(height);
+      if (isNaN(h) || h < 1 || h > GRID_HEIGHT) {
+        alert(`Height must be between 1 and ${GRID_HEIGHT}`);
+        return;
+      }
+
+      customBin = { w, h, color: '#4a6670' };
+      selectedBin = customBin;
+      rotated = false;
+      renderBinOptions();
+          }
+
+    function canPlace(x, y, w, h) {
+      if (x + w > GRID_WIDTH || y + h > GRID_HEIGHT) return false;
+      for (let dy = 0; dy < h; dy++) {
+        for (let dx = 0; dx < w; dx++) {
+          if (grid[y + dy][x + dx] !== null) return false;
+        }
+      }
+      return true;
+    }
+
+    function showPreview(x, y) {
+      clearPreview();
+      const { w, h } = getCurrentDimensions();
+      const valid = canPlace(x, y, w, h);
+
+      for (let dy = 0; dy < h; dy++) {
+        for (let dx = 0; dx < w; dx++) {
+          const px = x + dx;
+          const py = y + dy;
+          if (px < GRID_WIDTH && py < GRID_HEIGHT) {
+            const cell = document.querySelector(`.cell[data-x="${px}"][data-y="${py}"]`);
+            if (cell) cell.classList.add(valid ? 'preview' : 'invalid');
+          }
+        }
+      }
+    }
+
+    function clearPreview() {
+      document.querySelectorAll('.cell.preview, .cell.invalid').forEach(c => {
+        c.classList.remove('preview', 'invalid');
+      });
+    }
+
+    function placeBin(x, y) {
+      const { w, h } = getCurrentDimensions();
+      const { color } = selectedBin;
+      if (!canPlace(x, y, w, h)) return;
+
+      const id = ++binIdCounter;
+      bins.push({ id, x, y, w, h, color });
+
+      for (let dy = 0; dy < h; dy++) {
+        for (let dx = 0; dx < w; dx++) {
+          grid[y + dy][x + dx] = id;
+        }
+      }
+
+      renderBins();
+      updateStats();
+      clearPreview();
+    }
+
+    function removeBin(id) {
+      const binIndex = bins.findIndex(b => b.id === id);
+      if (binIndex === -1) return;
+
+      const bin = bins[binIndex];
+      for (let dy = 0; dy < bin.h; dy++) {
+        for (let dx = 0; dx < bin.w; dx++) {
+          grid[bin.y + dy][bin.x + dx] = null;
+        }
+      }
+
+      bins.splice(binIndex, 1);
+      renderBins();
+      updateStats();
+    }
+
+    function updateStats() {
+      const totalCells = GRID_WIDTH * GRID_HEIGHT;
+      const usedCells = grid.flat().filter(c => c !== null).length;
+      const percentFilled = Math.round((usedCells / totalCells) * 100);
+
+      document.getElementById('progressFill').style.width = `${percentFilled}%`;
+      document.getElementById('progressText').textContent = `${percentFilled}% Filled`;
+      document.getElementById('cellCount').textContent = `${usedCells}/${totalCells}`;
+      document.getElementById('binCount').textContent = bins.length;
+    }
+
+    function clearGrid() {
+      grid = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(null));
+      bins = [];
+      renderBins();
+      updateStats();
+    }
+
+    function printBinList() {
+      if (bins.length === 0) {
+        alert('No bins to print - place some bins first');
+        return;
+      }
+
+      const binCounts = {};
+      bins.forEach(bin => {
+        const dims = [bin.w, bin.h].sort((a, b) => a - b);
+        const key = `${dims[0]}x${dims[1]}`;
+        binCounts[key] = (binCounts[key] || 0) + 1;
+      });
+
+      const totalCells = GRID_WIDTH * GRID_HEIGHT;
+      const usedCells = grid.flat().filter(c => c !== null).length;
+
+      let html = `<h2>Bins To Print</h2>`;
+      html += `<p>Grid: ${GRID_WIDTH}x${GRID_HEIGHT} | Filled: ${Math.round((usedCells/totalCells)*100)}% (${usedCells}/${totalCells} cells) | Total bins: ${bins.length}</p>`;
+      html += `<table><tr><th>Size</th><th>Quantity</th></tr>`;
+
+      Object.entries(binCounts)
+        .sort((a, b) => {
+          const [aw, ah] = a[0].split('x').map(Number);
+          const [bw, bh] = b[0].split('x').map(Number);
+          return (aw * ah) - (bw * bh);
+        })
+        .forEach(([size, count]) => {
+          html += `<tr><td>${size}</td><td>${count}</td></tr>`;
+        });
+
+      html += `</table>`;
+      document.getElementById('printList').innerHTML = html;
+
+      window.print();
+    }
+
+    const STORAGE_KEY = 'gridfinity-layouts';
+    const MAX_SAVED = 6;
+
+    function getSavedLayouts() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveLayout() {
+      if (bins.length === 0) {
+        alert('Nothing to save - place some bins first');
+        return;
+      }
+
+      const layouts = getSavedLayouts();
+      const newLayout = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        bins: bins.map(b => ({ x: b.x, y: b.y, w: b.w, h: b.h, color: b.color })),
+        cellsUsed: grid.flat().filter(c => c !== null).length
+      };
+
+      layouts.unshift(newLayout);
+      if (layouts.length > MAX_SAVED) layouts.pop();
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(layouts));
+      renderSavedLayouts();
+    }
+
+    function loadLayout(id) {
+      const layouts = getSavedLayouts();
+      const layout = id ? layouts.find(l => l.id === id) : layouts[0];
+      if (!layout) {
+        alert('No saved layout found');
+        return;
+      }
+
+      clearGrid();
+
+      layout.bins.forEach(b => {
+        let binType = BIN_TYPES.find(t => t.w === b.w && t.h === b.h);
+        let needsRotate = false;
+        if (!binType) {
+          binType = BIN_TYPES.find(t => t.w === b.h && t.h === b.w);
+          needsRotate = true;
+        }
+        if (binType && canPlace(b.x, b.y, b.w, b.h)) {
+          selectedBin = binType;
+          rotated = needsRotate;
+          placeBin(b.x, b.y);
+        }
+      });
+
+      selectedBin = BIN_TYPES[0];
+      rotated = false;
+      renderBinOptions();
+          }
+
+    function deleteLayout(id, e) {
+      e.stopPropagation();
+      const layouts = getSavedLayouts().filter(l => l.id !== id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(layouts));
+      renderSavedLayouts();
+    }
+
+    function renderSavedLayouts() {
+      const container = document.getElementById('savedList');
+      const layouts = getSavedLayouts();
+
+      if (layouts.length === 0) {
+        container.innerHTML = '<p class="empty-saved">No saved layouts</p>';
+        return;
+      }
+
+      container.innerHTML = layouts.map(layout => `
+        <div class="saved-item" onclick="loadLayout(${layout.id})">
+          <div class="preview">${renderMiniGrid(layout.bins)}</div>
+          <div class="meta">${layout.date}<br>${layout.cellsUsed}/108</div>
+          <div class="delete" onclick="deleteLayout(${layout.id}, event)">delete</div>
+        </div>
+      `).join('');
+    }
+
+    function renderMiniGrid(layoutBins) {
+      const scale = 75 / (GRID_WIDTH * CELL_SIZE);
+      let html = '';
+      layoutBins.forEach(bin => {
+        const left = bin.x * CELL_SIZE * scale;
+        const top = bin.y * CELL_SIZE * scale;
+        const width = bin.w * CELL_SIZE * scale;
+        const height = bin.h * CELL_SIZE * scale;
+        html += `<div style="position:absolute;left:${left}px;top:${top}px;width:${width}px;height:${height}px;background:${bin.color};border-radius:1px;"></div>`;
+      });
+      return html;
+    }
+
+    init();
+  </script>
+</body>
+</html>
