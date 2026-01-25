@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gridfinity Visualizer Tests</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      margin: 0;
+      padding: 20px;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+    }
+    h1 { margin: 0 0 5px 0; font-size: 2rem; }
+    .subtitle { color: #888; margin-bottom: 20px; font-size: 0.85rem; }
+    .summary {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #2a2a4a;
+      border-radius: 8px;
+    }
+    .summary-item {
+      text-align: center;
+    }
+    .summary-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .summary-label {
+      font-size: 0.8rem;
+      color: #888;
+    }
+    .passed { color: #6ab36a; }
+    .failed { color: #b36a6a; }
+    .test-section {
+      background: #2a2a4a;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .test-section h2 {
+      margin: 0 0 10px 0;
+      font-size: 1rem;
+      color: #5b91ad;
+      border-bottom: 1px solid #3a3a5a;
+      padding-bottom: 8px;
+    }
+    .test-result {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #3a3a5a;
+      font-size: 0.85rem;
+    }
+    .test-result:last-child { border-bottom: none; }
+    .test-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .test-icon.pass { background: #2a4a2a; color: #6ab36a; }
+    .test-icon.fail { background: #4a2a2a; color: #b36a6a; }
+    .test-name { flex: 1; }
+    .test-details {
+      font-size: 0.75rem;
+      color: #666;
+      margin-left: 30px;
+      margin-top: 4px;
+    }
+    .test-error {
+      color: #b36a6a;
+      font-size: 0.75rem;
+      margin-left: 30px;
+      margin-top: 4px;
+      background: #2a1a1a;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+    .run-button {
+      padding: 10px 20px;
+      background: #5b91ad;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+    .run-button:hover { background: #6aa1bd; }
+  </style>
+</head>
+<body>
+  <h1>Gridfinity Visualizer Tests</h1>
+  <p class="subtitle">Unit tests for pure utility functions</p>
+
+  <button class="run-button" onclick="runAllTests()">Run All Tests</button>
+
+  <div class="summary" id="summary">
+    <div class="summary-item">
+      <div class="summary-value" id="totalTests">-</div>
+      <div class="summary-label">Total</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-value passed" id="passedTests">-</div>
+      <div class="summary-label">Passed</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-value failed" id="failedTests">-</div>
+      <div class="summary-label">Failed</div>
+    </div>
+  </div>
+
+  <div id="results"></div>
+
+  <script>
+    // ============================================
+    // COPY OF PURE FUNCTIONS FROM VISUALIZER
+    // (In production, these would be imported/shared)
+    // ============================================
+
+    const GRID_UNIT = 42;
+    const MM_PER_INCH = 25.4;
+
+    function toMm(value, unit) {
+      if (typeof value !== 'number' || isNaN(value)) return 0;
+      return unit === 'inches' ? value * MM_PER_INCH : value;
+    }
+
+    function fromMm(mm, unit) {
+      if (typeof mm !== 'number' || isNaN(mm)) return 0;
+      return unit === 'inches' ? mm / MM_PER_INCH : mm;
+    }
+
+    function calculateGridSize(widthMm, depthMm) {
+      const cols = Math.floor(widthMm / GRID_UNIT);
+      const rows = Math.floor(depthMm / GRID_UNIT);
+      return { cols: Math.max(0, cols), rows: Math.max(0, rows) };
+    }
+
+    function calculateMaxBaseplate(bedWidthMm, bedDepthMm) {
+      const width = Math.floor(bedWidthMm / GRID_UNIT);
+      const height = Math.floor(bedDepthMm / GRID_UNIT);
+      return { width: Math.max(0, width), height: Math.max(0, height) };
+    }
+
+    function calculateGap(drawerMm, gridUnits) {
+      return drawerMm - (gridUnits * GRID_UNIT);
+    }
+
+    function getFitQuality(widthGapMm, depthGapMm) {
+      const maxGap = Math.max(widthGapMm, depthGapMm);
+      if (maxGap < 5) return { description: 'Tight fit - minimal gap', quality: 'good' };
+      if (maxGap < 15) return { description: 'Good fit - small gap', quality: 'good' };
+      if (maxGap < 30) return { description: 'Moderate fit - noticeable gap', quality: 'moderate' };
+      return { description: 'Loose fit - consider filler', quality: 'loose' };
+    }
+
+    function getDivisorPairs(n) {
+      const pairs = [];
+      for (let i = 1; i <= Math.sqrt(n); i++) {
+        if (n % i === 0) {
+          pairs.push({ a: i, b: n / i });
+        }
+      }
+      return pairs;
+    }
+
+    function calculateBaseplatesPerPrint(baseplateW, baseplateH, bedWidthMm, bedDepthMm) {
+      const plateWidthMm = baseplateW * GRID_UNIT;
+      const plateHeightMm = baseplateH * GRID_UNIT;
+
+      const normalAcross = Math.floor(bedWidthMm / plateWidthMm);
+      const normalDown = Math.floor(bedDepthMm / plateHeightMm);
+      const normalCount = normalAcross * normalDown;
+
+      const rotatedAcross = Math.floor(bedWidthMm / plateHeightMm);
+      const rotatedDown = Math.floor(bedDepthMm / plateWidthMm);
+      const rotatedCount = rotatedAcross * rotatedDown;
+
+      if (rotatedCount > normalCount) {
+        return { perPrint: rotatedCount, acrossOnBed: rotatedAcross, downOnBed: rotatedDown, rotated: true };
+      }
+      return { perPrint: normalCount, acrossOnBed: normalAcross, downOnBed: normalDown, rotated: false };
+    }
+
+    function calculatePrintsRequired(totalBaseplates, perPrint) {
+      if (perPrint <= 0) return { prints: Infinity, lastPrintCount: 0 };
+      const prints = Math.ceil(totalBaseplates / perPrint);
+      const lastPrintCount = totalBaseplates % perPrint || perPrint;
+      return { prints, lastPrintCount };
+    }
+
+    function calculateBaseplateRecommendations(gridCols, gridRows, maxW, maxH, bedWidthMm, bedDepthMm) {
+      if (gridCols <= 0 || gridRows <= 0 || maxW <= 0 || maxH <= 0) return [];
+
+      // Default bed size for backwards compatibility in tests
+      bedWidthMm = bedWidthMm || 256;
+      bedDepthMm = bedDepthMm || 256;
+
+      const options = [];
+      const colDivisors = getDivisorPairs(gridCols);
+      const rowDivisors = getDivisorPairs(gridRows);
+
+      for (const colDiv of colDivisors) {
+        for (const rowDiv of rowDivisors) {
+          const baseplateW = colDiv.b;
+          const baseplateH = rowDiv.b;
+          const countX = colDiv.a;
+          const countY = rowDiv.a;
+
+          if (baseplateW <= maxW && baseplateH <= maxH) {
+            const totalBaseplates = countX * countY;
+            const printInfo = calculateBaseplatesPerPrint(baseplateW, baseplateH, bedWidthMm, bedDepthMm);
+            const { prints, lastPrintCount } = calculatePrintsRequired(totalBaseplates, printInfo.perPrint);
+
+            options.push({
+              width: baseplateW,
+              height: baseplateH,
+              countX: countX,
+              countY: countY,
+              total: totalBaseplates,
+              prints: prints,
+              perPrint: printInfo.perPrint,
+              lastPrintCount: lastPrintCount,
+              printRotated: printInfo.rotated,
+              description: `${totalBaseplates}× ${baseplateW}×${baseplateH} baseplate${totalBaseplates > 1 ? 's' : ''}`,
+              detail: `${countX} across × ${countY} down`
+            });
+          }
+        }
+      }
+
+      options.sort((a, b) => {
+        if (a.prints !== b.prints) return a.prints - b.prints;
+        return a.total - b.total;
+      });
+
+      const unique = [];
+      const seen = new Set();
+      for (const opt of options) {
+        const key = `${opt.width}x${opt.height}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(opt);
+          if (unique.length >= 4) break;
+        }
+      }
+
+      return unique;
+    }
+
+    function getAffectedBins(bins, newCols, newRows) {
+      return bins.filter(bin => {
+        const binRight = bin.x + bin.w;
+        const binBottom = bin.y + bin.h;
+        return binRight > newCols || binBottom > newRows;
+      });
+    }
+
+    function canPlaceBin(grid, x, y, w, h, gridWidth, gridHeight) {
+      if (x + w > gridWidth || y + h > gridHeight) return false;
+      for (let dy = 0; dy < h; dy++) {
+        for (let dx = 0; dx < w; dx++) {
+          if (grid[y + dy][x + dx] !== null) return false;
+        }
+      }
+      return true;
+    }
+
+    // ============================================
+    // TEST FRAMEWORK
+    // ============================================
+
+    const testResults = [];
+
+    function assertEquals(actual, expected, message = '') {
+      const pass = JSON.stringify(actual) === JSON.stringify(expected);
+      if (!pass) {
+        throw new Error(`${message}\nExpected: ${JSON.stringify(expected)}\nActual: ${JSON.stringify(actual)}`);
+      }
+    }
+
+    function assertApproxEquals(actual, expected, tolerance = 0.001, message = '') {
+      const pass = Math.abs(actual - expected) < tolerance;
+      if (!pass) {
+        throw new Error(`${message}\nExpected: ~${expected}\nActual: ${actual}`);
+      }
+    }
+
+    function assertTrue(condition, message = '') {
+      if (!condition) {
+        throw new Error(message || 'Expected true but got false');
+      }
+    }
+
+    function assertFalse(condition, message = '') {
+      if (condition) {
+        throw new Error(message || 'Expected false but got true');
+      }
+    }
+
+    function test(name, fn) {
+      try {
+        fn();
+        testResults.push({ name, passed: true });
+      } catch (error) {
+        testResults.push({ name, passed: false, error: error.message });
+      }
+    }
+
+    // ============================================
+    // UNIT CONVERSION TESTS
+    // ============================================
+
+    function runUnitConversionTests() {
+      test('toMm: mm values pass through unchanged', () => {
+        assertEquals(toMm(100, 'mm'), 100);
+        assertEquals(toMm(42, 'mm'), 42);
+        assertEquals(toMm(0, 'mm'), 0);
+      });
+
+      test('toMm: inches convert to mm correctly', () => {
+        assertApproxEquals(toMm(1, 'inches'), 25.4);
+        assertApproxEquals(toMm(10, 'inches'), 254);
+        assertApproxEquals(toMm(15, 'inches'), 381);
+      });
+
+      test('toMm: handles edge cases', () => {
+        assertEquals(toMm(0, 'inches'), 0);
+        assertEquals(toMm(NaN, 'mm'), 0);
+        assertEquals(toMm(undefined, 'mm'), 0);
+        assertEquals(toMm('100', 'mm'), 0);
+      });
+
+      test('fromMm: mm values pass through unchanged', () => {
+        assertEquals(fromMm(100, 'mm'), 100);
+        assertEquals(fromMm(42, 'mm'), 42);
+        assertEquals(fromMm(0, 'mm'), 0);
+      });
+
+      test('fromMm: mm convert to inches correctly', () => {
+        assertApproxEquals(fromMm(25.4, 'inches'), 1);
+        assertApproxEquals(fromMm(254, 'inches'), 10);
+        assertApproxEquals(fromMm(381, 'inches'), 15);
+      });
+
+      test('fromMm: handles edge cases', () => {
+        assertEquals(fromMm(0, 'inches'), 0);
+        assertEquals(fromMm(NaN, 'inches'), 0);
+        assertEquals(fromMm(undefined, 'inches'), 0);
+      });
+
+      test('Unit conversion round-trip', () => {
+        const original = 15;
+        const inMm = toMm(original, 'inches');
+        const backToInches = fromMm(inMm, 'inches');
+        assertApproxEquals(backToInches, original);
+      });
+    }
+
+    // ============================================
+    // GRID CALCULATION TESTS
+    // ============================================
+
+    function runGridCalculationTests() {
+      test('calculateGridSize: standard drawer 378x504mm -> 9x12', () => {
+        const result = calculateGridSize(378, 504);
+        assertEquals(result, { cols: 9, rows: 12 });
+      });
+
+      test('calculateGridSize: 400x400mm -> 9x9', () => {
+        const result = calculateGridSize(400, 400);
+        assertEquals(result, { cols: 9, rows: 9 });
+      });
+
+      test('calculateGridSize: too small drawer (41x41mm) -> 0x0', () => {
+        const result = calculateGridSize(41, 41);
+        assertEquals(result, { cols: 0, rows: 0 });
+      });
+
+      test('calculateGridSize: exactly 1 grid unit (42x42mm) -> 1x1', () => {
+        const result = calculateGridSize(42, 42);
+        assertEquals(result, { cols: 1, rows: 1 });
+      });
+
+      test('calculateGridSize: handles zero dimensions', () => {
+        assertEquals(calculateGridSize(0, 0), { cols: 0, rows: 0 });
+        assertEquals(calculateGridSize(0, 100), { cols: 0, rows: 2 });
+        assertEquals(calculateGridSize(100, 0), { cols: 2, rows: 0 });
+      });
+
+      test('calculateGridSize: handles negative dimensions', () => {
+        assertEquals(calculateGridSize(-100, -100), { cols: 0, rows: 0 });
+      });
+
+      test('calculateMaxBaseplate: Bambu P1S (256x256mm) -> 6x6', () => {
+        const result = calculateMaxBaseplate(256, 256);
+        assertEquals(result, { width: 6, height: 6 });
+      });
+
+      test('calculateMaxBaseplate: Prusa MK4 (250x210mm) -> 5x5', () => {
+        const result = calculateMaxBaseplate(250, 210);
+        assertEquals(result, { width: 5, height: 5 });
+      });
+
+      test('calculateMaxBaseplate: Prusa Mini (180x180mm) -> 4x4', () => {
+        const result = calculateMaxBaseplate(180, 180);
+        assertEquals(result, { width: 4, height: 4 });
+      });
+
+      test('calculateMaxBaseplate: Custom 300x300mm -> 7x7', () => {
+        const result = calculateMaxBaseplate(300, 300);
+        assertEquals(result, { width: 7, height: 7 });
+      });
+    }
+
+    // ============================================
+    // GAP AND FIT QUALITY TESTS
+    // ============================================
+
+    function runFitQualityTests() {
+      test('calculateGap: perfect fit (378mm, 9 units) -> 0mm', () => {
+        assertEquals(calculateGap(378, 9), 0);
+      });
+
+      test('calculateGap: 400mm drawer with 9 units -> 22mm gap', () => {
+        assertEquals(calculateGap(400, 9), 22);
+      });
+
+      test('calculateGap: 504mm drawer with 12 units -> 0mm', () => {
+        assertEquals(calculateGap(504, 12), 0);
+      });
+
+      test('getFitQuality: tight fit (0-4mm gap)', () => {
+        const result = getFitQuality(0, 0);
+        assertEquals(result.quality, 'good');
+        assertTrue(result.description.includes('Tight'));
+      });
+
+      test('getFitQuality: good fit (5-14mm gap)', () => {
+        const result = getFitQuality(10, 5);
+        assertEquals(result.quality, 'good');
+        assertTrue(result.description.includes('Good'));
+      });
+
+      test('getFitQuality: moderate fit (15-29mm gap)', () => {
+        const result = getFitQuality(22, 22);
+        assertEquals(result.quality, 'moderate');
+        assertTrue(result.description.includes('Moderate'));
+      });
+
+      test('getFitQuality: loose fit (30mm+ gap)', () => {
+        const result = getFitQuality(35, 35);
+        assertEquals(result.quality, 'loose');
+        assertTrue(result.description.includes('Loose'));
+      });
+
+      test('getFitQuality: uses max of both gaps', () => {
+        const result1 = getFitQuality(5, 25);
+        assertEquals(result1.quality, 'moderate');
+
+        const result2 = getFitQuality(25, 5);
+        assertEquals(result2.quality, 'moderate');
+      });
+    }
+
+    // ============================================
+    // PRINT CALCULATION TESTS
+    // ============================================
+
+    function runPrintCalculationTests() {
+      test('calculateBaseplatesPerPrint: 3x4 on P1S (256x256) -> 2 per print', () => {
+        // 3x4 = 126x168mm, bed is 256x256
+        // Normal: floor(256/126)=2 across, floor(256/168)=1 down = 2
+        // Rotated: floor(256/168)=1 across, floor(256/126)=2 down = 2
+        const result = calculateBaseplatesPerPrint(3, 4, 256, 256);
+        assertEquals(result.perPrint, 2);
+      });
+
+      test('calculateBaseplatesPerPrint: 1x1 on P1S (256x256) -> 36 per print', () => {
+        // 1x1 = 42x42mm
+        // floor(256/42)=6 across, floor(256/42)=6 down = 36
+        const result = calculateBaseplatesPerPrint(1, 1, 256, 256);
+        assertEquals(result.perPrint, 36);
+      });
+
+      test('calculateBaseplatesPerPrint: 6x6 on P1S (256x256) -> 1 per print', () => {
+        // 6x6 = 252x252mm, just barely fits
+        const result = calculateBaseplatesPerPrint(6, 6, 256, 256);
+        assertEquals(result.perPrint, 1);
+      });
+
+      test('calculateBaseplatesPerPrint: rotation improves count', () => {
+        // Test case where rotation helps: 2x4 on 300x180 bed
+        // 2x4 = 84x168mm
+        // Normal: floor(300/84)=3, floor(180/168)=1 = 3
+        // Rotated: floor(300/168)=1, floor(180/84)=2 = 2
+        // Normal wins
+        const result = calculateBaseplatesPerPrint(2, 4, 300, 180);
+        assertEquals(result.perPrint, 3);
+        assertFalse(result.rotated);
+      });
+
+      test('calculatePrintsRequired: 9 baseplates at 2 per print -> 5 prints', () => {
+        const result = calculatePrintsRequired(9, 2);
+        assertEquals(result.prints, 5);
+        assertEquals(result.lastPrintCount, 1);
+      });
+
+      test('calculatePrintsRequired: exact division', () => {
+        const result = calculatePrintsRequired(10, 2);
+        assertEquals(result.prints, 5);
+        assertEquals(result.lastPrintCount, 2);
+      });
+
+      test('calculatePrintsRequired: single baseplate', () => {
+        const result = calculatePrintsRequired(1, 4);
+        assertEquals(result.prints, 1);
+        assertEquals(result.lastPrintCount, 1);
+      });
+
+      test('calculatePrintsRequired: zero perPrint returns Infinity', () => {
+        const result = calculatePrintsRequired(10, 0);
+        assertEquals(result.prints, Infinity);
+      });
+    }
+
+    // ============================================
+    // BASEPLATE RECOMMENDATION TESTS
+    // ============================================
+
+    function runBaseplateTests() {
+      test('getDivisorPairs: 12 has correct divisor pairs', () => {
+        const pairs = getDivisorPairs(12);
+        assertTrue(pairs.some(p => p.a === 1 && p.b === 12));
+        assertTrue(pairs.some(p => p.a === 2 && p.b === 6));
+        assertTrue(pairs.some(p => p.a === 3 && p.b === 4));
+      });
+
+      test('getDivisorPairs: prime number 7', () => {
+        const pairs = getDivisorPairs(7);
+        assertEquals(pairs.length, 1);
+        assertEquals(pairs[0], { a: 1, b: 7 });
+      });
+
+      test('getDivisorPairs: 1 has single pair', () => {
+        const pairs = getDivisorPairs(1);
+        assertEquals(pairs.length, 1);
+        assertEquals(pairs[0], { a: 1, b: 1 });
+      });
+
+      test('calculateBaseplateRecommendations: 4x4 grid, 6x6 max -> single 4x4', () => {
+        const recs = calculateBaseplateRecommendations(4, 4, 6, 6, 256, 256);
+        assertTrue(recs.length > 0);
+        const single4x4 = recs.find(r => r.width === 4 && r.height === 4 && r.total === 1);
+        assertTrue(single4x4 !== undefined, 'Should have a single 4x4 option');
+      });
+
+      test('calculateBaseplateRecommendations: 9x12 grid, 6x6 max -> valid options', () => {
+        const recs = calculateBaseplateRecommendations(9, 12, 6, 6, 256, 256);
+        assertTrue(recs.length > 0);
+
+        // All baseplates should fit within 6x6
+        recs.forEach(rec => {
+          assertTrue(rec.width <= 6, `Width ${rec.width} exceeds max 6`);
+          assertTrue(rec.height <= 6, `Height ${rec.height} exceeds max 6`);
+        });
+
+        // All should tile exactly
+        recs.forEach(rec => {
+          assertEquals(rec.width * rec.countX, 9, 'Should tile width exactly');
+          assertEquals(rec.height * rec.countY, 12, 'Should tile height exactly');
+        });
+      });
+
+      test('calculateBaseplateRecommendations: includes print count', () => {
+        const recs = calculateBaseplateRecommendations(9, 12, 6, 6, 256, 256);
+        assertTrue(recs.length > 0);
+
+        // All should have prints calculated
+        recs.forEach(rec => {
+          assertTrue(rec.prints > 0, 'Should have prints calculated');
+          assertTrue(rec.perPrint > 0, 'Should have perPrint calculated');
+        });
+      });
+
+      test('calculateBaseplateRecommendations: sorted by fewest prints', () => {
+        const recs = calculateBaseplateRecommendations(9, 12, 6, 6, 256, 256);
+        for (let i = 1; i < recs.length; i++) {
+          assertTrue(recs[i].prints >= recs[i-1].prints, 'Should be sorted ascending by prints');
+        }
+      });
+
+      test('calculateBaseplateRecommendations: 9x12 with 3x4 baseplates needs 5 prints on P1S', () => {
+        const recs = calculateBaseplateRecommendations(9, 12, 6, 6, 256, 256);
+        const opt3x4 = recs.find(r => r.width === 3 && r.height === 4);
+        assertTrue(opt3x4 !== undefined, 'Should have 3x4 option');
+        assertEquals(opt3x4.total, 9, '9 baseplates needed');
+        assertEquals(opt3x4.perPrint, 2, '2 baseplates per print');
+        assertEquals(opt3x4.prints, 5, '5 prints required');
+      });
+
+      test('calculateBaseplateRecommendations: returns empty for invalid inputs', () => {
+        assertEquals(calculateBaseplateRecommendations(0, 12, 6, 6, 256, 256), []);
+        assertEquals(calculateBaseplateRecommendations(9, 0, 6, 6, 256, 256), []);
+        assertEquals(calculateBaseplateRecommendations(9, 12, 0, 6, 256, 256), []);
+        assertEquals(calculateBaseplateRecommendations(9, 12, 6, 0, 256, 256), []);
+      });
+
+      test('calculateBaseplateRecommendations: odd dimensions (7x5 grid)', () => {
+        const recs = calculateBaseplateRecommendations(7, 5, 7, 7, 300, 300);
+        assertTrue(recs.length > 0);
+
+        // 7 and 5 are prime, so only option is 7x5 baseplate or smaller tiles
+        const single7x5 = recs.find(r => r.width === 7 && r.height === 5 && r.total === 1);
+        assertTrue(single7x5 !== undefined || recs.some(r => r.total === 35));
+      });
+
+      test('calculateBaseplateRecommendations: max 4 options returned', () => {
+        const recs = calculateBaseplateRecommendations(12, 12, 12, 12, 600, 600);
+        assertTrue(recs.length <= 4);
+      });
+    }
+
+    // ============================================
+    // COLLISION DETECTION TESTS
+    // ============================================
+
+    function runCollisionTests() {
+      test('canPlaceBin: empty grid allows placement', () => {
+        const grid = [[null, null], [null, null]];
+        assertTrue(canPlaceBin(grid, 0, 0, 1, 1, 2, 2));
+        assertTrue(canPlaceBin(grid, 0, 0, 2, 2, 2, 2));
+      });
+
+      test('canPlaceBin: occupied cell prevents placement', () => {
+        const grid = [[1, null], [null, null]];
+        assertFalse(canPlaceBin(grid, 0, 0, 1, 1, 2, 2));
+        assertFalse(canPlaceBin(grid, 0, 0, 2, 1, 2, 2));
+      });
+
+      test('canPlaceBin: placement outside grid bounds fails', () => {
+        const grid = [[null, null], [null, null]];
+        assertFalse(canPlaceBin(grid, 0, 0, 3, 1, 2, 2)); // Too wide
+        assertFalse(canPlaceBin(grid, 0, 0, 1, 3, 2, 2)); // Too tall
+        assertFalse(canPlaceBin(grid, 1, 1, 2, 2, 2, 2)); // Extends beyond
+      });
+
+      test('canPlaceBin: adjacent bins can be placed', () => {
+        const grid = [[1, null], [1, null]];
+        assertTrue(canPlaceBin(grid, 1, 0, 1, 2, 2, 2));
+      });
+
+      test('canPlaceBin: larger grid with complex layout', () => {
+        const grid = [
+          [1, 1, null, null],
+          [1, 1, null, null],
+          [null, null, 2, 2],
+          [null, null, 2, 2]
+        ];
+
+        // Can place in empty corners
+        assertTrue(canPlaceBin(grid, 2, 0, 2, 2, 4, 4));
+        assertTrue(canPlaceBin(grid, 0, 2, 2, 2, 4, 4));
+
+        // Cannot overlap existing
+        assertFalse(canPlaceBin(grid, 0, 0, 3, 3, 4, 4));
+        assertFalse(canPlaceBin(grid, 1, 1, 2, 2, 4, 4));
+      });
+    }
+
+    // ============================================
+    // DRAWER RESIZE TESTS
+    // ============================================
+
+    function runResizeTests() {
+      test('getAffectedBins: no bins affected when grid grows', () => {
+        const bins = [
+          { x: 0, y: 0, w: 2, h: 2 },
+          { x: 5, y: 5, w: 2, h: 2 }
+        ];
+        const affected = getAffectedBins(bins, 12, 12);
+        assertEquals(affected.length, 0);
+      });
+
+      test('getAffectedBins: bins affected when grid shrinks', () => {
+        const bins = [
+          { x: 0, y: 0, w: 2, h: 2 },
+          { x: 8, y: 10, w: 2, h: 2 }
+        ];
+        const affected = getAffectedBins(bins, 9, 9);
+        assertEquals(affected.length, 1);
+        assertEquals(affected[0].x, 8);
+      });
+
+      test('getAffectedBins: bin partially outside new bounds', () => {
+        const bins = [
+          { x: 7, y: 0, w: 3, h: 2 } // Ends at x=10, beyond new width of 9
+        ];
+        const affected = getAffectedBins(bins, 9, 12);
+        assertEquals(affected.length, 1);
+      });
+
+      test('getAffectedBins: bin exactly at edge is not affected', () => {
+        const bins = [
+          { x: 7, y: 10, w: 2, h: 2 } // Ends at x=9, y=12
+        ];
+        const affected = getAffectedBins(bins, 9, 12);
+        assertEquals(affected.length, 0);
+      });
+
+      test('getAffectedBins: multiple bins affected', () => {
+        const bins = [
+          { x: 0, y: 0, w: 2, h: 2 },   // OK
+          { x: 8, y: 0, w: 2, h: 2 },   // Affected (x)
+          { x: 0, y: 10, w: 2, h: 2 },  // Affected (y)
+          { x: 8, y: 10, w: 2, h: 2 }   // Affected (both)
+        ];
+        const affected = getAffectedBins(bins, 8, 10);
+        assertEquals(affected.length, 3);
+      });
+
+      test('getAffectedBins: empty bins array', () => {
+        const affected = getAffectedBins([], 5, 5);
+        assertEquals(affected.length, 0);
+      });
+    }
+
+    // ============================================
+    // TEST RUNNER
+    // ============================================
+
+    function runAllTests() {
+      testResults.length = 0;
+
+      runUnitConversionTests();
+      runGridCalculationTests();
+      runFitQualityTests();
+      runPrintCalculationTests();
+      runBaseplateTests();
+      runCollisionTests();
+      runResizeTests();
+
+      renderResults();
+    }
+
+    function renderResults() {
+      const passed = testResults.filter(r => r.passed).length;
+      const failed = testResults.filter(r => !r.passed).length;
+
+      document.getElementById('totalTests').textContent = testResults.length;
+      document.getElementById('passedTests').textContent = passed;
+      document.getElementById('failedTests').textContent = failed;
+
+      // Group results by category
+      const categories = {
+        'Unit Conversion': testResults.filter(r => r.name.includes('toMm') || r.name.includes('fromMm') || r.name.includes('Unit conversion')),
+        'Grid Calculation': testResults.filter(r => r.name.includes('calculateGridSize') || r.name.includes('calculateMaxBaseplate')),
+        'Fit Quality': testResults.filter(r => r.name.includes('calculateGap') || r.name.includes('getFitQuality')),
+        'Print Calculation': testResults.filter(r => r.name.includes('calculateBaseplatesPerPrint') || r.name.includes('calculatePrintsRequired')),
+        'Baseplate Recommendations': testResults.filter(r => r.name.includes('getDivisorPairs') || r.name.includes('calculateBaseplateRecommendations')),
+        'Collision Detection': testResults.filter(r => r.name.includes('canPlaceBin')),
+        'Drawer Resize': testResults.filter(r => r.name.includes('getAffectedBins'))
+      };
+
+      let html = '';
+      for (const [category, tests] of Object.entries(categories)) {
+        if (tests.length === 0) continue;
+
+        const categoryPassed = tests.filter(t => t.passed).length;
+        html += `
+          <div class="test-section">
+            <h2>${category} (${categoryPassed}/${tests.length})</h2>
+            ${tests.map(t => `
+              <div class="test-result">
+                <div class="test-icon ${t.passed ? 'pass' : 'fail'}">${t.passed ? '✓' : '✗'}</div>
+                <div class="test-name">${t.name}</div>
+              </div>
+              ${t.error ? `<div class="test-error">${t.error}</div>` : ''}
+            `).join('')}
+          </div>
+        `;
+      }
+
+      document.getElementById('results').innerHTML = html;
+    }
+
+    // Run tests on page load
+    runAllTests();
+  </script>
+</body>
+</html>

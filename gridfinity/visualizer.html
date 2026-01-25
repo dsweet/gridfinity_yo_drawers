@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gridfinity Bin Visualizer</title>
+  <title>Gridfinity Yo' Drawer!</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -16,6 +16,250 @@
     }
     h1 { margin: 0 0 5px 0; font-size: 2.8rem; }
     .subtitle { color: #888; margin-bottom: 15px; font-size: 0.85rem; }
+
+    /* Tab styling */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 0;
+    }
+    .tab {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px 5px 0 0;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.9rem;
+      background: #2a2a4a;
+      color: #888;
+      transition: all 0.15s;
+      margin-bottom: -2px;
+      border-bottom: 2px solid transparent;
+    }
+    .tab:hover { background: #3a3a5a; color: #aaa; }
+    .tab.active {
+      background: #3a3a6a;
+      color: #fff;
+      border-bottom-color: #5b91ad;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Planning tab styles */
+    .planning-layout {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+    .planning-section {
+      background: #2a2a4a;
+      border-radius: 8px;
+      padding: 20px;
+      min-width: 280px;
+    }
+    .planning-section h3 {
+      margin: 0 0 15px 0;
+      font-size: 1rem;
+      color: #5b91ad;
+      border-bottom: 1px solid #3a3a5a;
+      padding-bottom: 8px;
+    }
+    .unit-toggle {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .unit-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .unit-option input { cursor: pointer; }
+    .input-group {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .input-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .input-field label {
+      font-size: 0.75rem;
+      color: #888;
+    }
+    .input-field input, .input-field select {
+      padding: 8px 12px;
+      border: 1px solid #4a4a6a;
+      border-radius: 4px;
+      background: #1a1a2e;
+      color: #eee;
+      font-size: 0.9rem;
+      width: 120px;
+    }
+    .input-field select { width: 100%; cursor: pointer; }
+    .input-field input:focus, .input-field select:focus {
+      outline: none;
+      border-color: #5b91ad;
+    }
+    .input-suffix {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 2px;
+    }
+    .results-box {
+      background: #1a1a2e;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+    .result-row:last-child { margin-bottom: 0; }
+    .result-label { color: #888; }
+    .result-value { font-weight: 600; }
+    .result-value.good { color: #6ab36a; }
+    .result-value.moderate { color: #b3a66a; }
+    .result-value.loose { color: #b36a6a; }
+    .baseplate-options {
+      margin-top: 15px;
+    }
+    .baseplate-option {
+      background: #3a3a5a;
+      border-radius: 5px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .baseplate-option:hover { background: #4a4a6a; }
+    .baseplate-option.selected {
+      border-color: #5b91ad;
+      background: #3a4a5a;
+    }
+    .baseplate-option:last-child { margin-bottom: 0; }
+    .baseplate-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .baseplate-radio {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .baseplate-title {
+      font-weight: 600;
+      flex: 1;
+    }
+    .baseplate-prints {
+      background: #2e769d;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .baseplate-detail {
+      font-size: 0.8rem;
+      color: #888;
+      margin-left: 24px;
+      margin-top: 4px;
+    }
+
+    /* Drawer visualization */
+    .drawer-viz-section {
+      background: #2a2a4a;
+      border-radius: 8px;
+      padding: 20px;
+      min-width: 280px;
+      max-width: 400px;
+    }
+    .drawer-viz-section h3 {
+      margin: 0 0 15px 0;
+      font-size: 1rem;
+      color: #5b91ad;
+      border-bottom: 1px solid #3a3a5a;
+      padding-bottom: 8px;
+    }
+    .drawer-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
+    }
+    .drawer-viz {
+      background: #1a1a2e;
+      border: 2px solid #4a4a6a;
+      border-radius: 4px;
+      position: relative;
+      display: grid;
+      gap: 2px;
+      padding: 2px;
+    }
+    .baseplate-cell {
+      background: #3d7fa2;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.8);
+      position: relative;
+    }
+    .baseplate-cell.alt {
+      background: #2e769d;
+    }
+    .drawer-stats {
+      margin-top: 15px;
+      padding: 12px;
+      background: #1a1a2e;
+      border-radius: 6px;
+    }
+    .drawer-stat-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+    .drawer-stat-row:last-child { margin-bottom: 0; }
+    .drawer-stat-label { color: #888; }
+    .drawer-stat-value { font-weight: 600; }
+    .drawer-stat-value.highlight { color: #5b91ad; }
+    .print-breakdown {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #3a3a5a;
+      font-size: 0.8rem;
+      color: #888;
+    }
+    .planning-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .btn-primary {
+      background: #5b91ad;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #6aa1bd; }
+    .btn-warning {
+      background: #8a5a5a;
+      color: #fff;
+    }
+    .btn-warning:hover { background: #9a6a6a; }
+
+    /* Existing bin layout styles */
     .main-layout { display: flex; gap: 20px; flex-wrap: wrap; }
     .left-col { display: flex; flex-direction: column; gap: 15px; }
     .grid-container {
@@ -24,8 +268,6 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(9, 40px);
-      grid-template-rows: repeat(12, 40px);
       gap: 1px;
       background: #333;
       padding: 1px;
@@ -52,6 +294,8 @@
       border-radius: 2px;
       cursor: pointer;
       transition: background 0.1s;
+      width: 40px;
+      height: 40px;
     }
     .cell:hover { background: #3a3a6a; }
     .cell.preview { background: rgba(100, 200, 100, 0.3); }
@@ -86,7 +330,7 @@
     }
     .bin-option:hover { filter: brightness(1.1); }
     .bin-option.selected { border-color: #fff; }
-        .stats-row {
+    .stats-row {
       display: flex;
       gap: 8px;
       margin-bottom: 12px;
@@ -175,10 +419,197 @@
     .saved-item .delete:hover { color: #b56a6a; }
     .empty-saved { color: #555; font-size: 0.75rem; }
 
+    /* Modal styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #2a2a4a;
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+    }
+    .modal h3 {
+      margin: 0 0 15px 0;
+      color: #eee;
+    }
+    .modal p {
+      margin: 0 0 15px 0;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    /* About tab styles */
+    .about-layout {
+      max-width: 900px;
+    }
+    .about-section {
+      background: #2a2a4a;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .about-section h2 {
+      margin: 0 0 15px 0;
+      font-size: 1.3rem;
+      color: #5b91ad;
+      border-bottom: 1px solid #3a3a5a;
+      padding-bottom: 10px;
+    }
+    .about-section h3 {
+      margin: 20px 0 10px 0;
+      font-size: 1rem;
+      color: #7ca3b8;
+    }
+    .about-section p {
+      line-height: 1.6;
+      color: #ccc;
+      margin: 0 0 15px 0;
+    }
+    .about-section a {
+      color: #5b91ad;
+      text-decoration: none;
+    }
+    .about-section a:hover {
+      text-decoration: underline;
+      color: #7cb3cd;
+    }
+    .about-section ul {
+      margin: 0 0 15px 0;
+      padding-left: 20px;
+      color: #ccc;
+      line-height: 1.8;
+    }
+    .about-section li {
+      margin-bottom: 8px;
+    }
+    .video-link {
+      position: relative;
+      display: block;
+      width: 100%;
+      max-width: 480px;
+      margin: 15px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      text-decoration: none;
+    }
+    .video-link:hover .video-overlay {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    .video-link:hover .play-button {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+    .video-link img {
+      width: 100%;
+      display: block;
+    }
+    .video-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      transition: background 0.2s;
+    }
+    .play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 68px;
+      height: 48px;
+      background: #ff0000;
+      border-radius: 12px;
+      transition: transform 0.2s;
+    }
+    .play-button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-40%, -50%);
+      border-style: solid;
+      border-width: 10px 0 10px 18px;
+      border-color: transparent transparent transparent #fff;
+    }
+    .video-title {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .video-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .warning-box {
+      background: #3a3a4a;
+      border-left: 4px solid #888;
+      padding: 15px;
+      border-radius: 0 6px 6px 0;
+      margin: 15px 0;
+    }
+    .warning-box p {
+      margin: 0;
+      color: #ddd;
+    }
+    .tip-box {
+      background: #2a3a4a;
+      border-left: 4px solid #5b91ad;
+      padding: 15px;
+      border-radius: 0 6px 6px 0;
+      margin: 15px 0;
+    }
+    .tip-box p {
+      margin: 0;
+      color: #ddd;
+    }
+    .resource-card {
+      background: #1a1a2e;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 10px 0;
+    }
+    .resource-card h4 {
+      margin: 0 0 8px 0;
+      color: #eee;
+      font-size: 0.95rem;
+    }
+    .resource-card p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #999;
+    }
+
     /* Print styles */
     @media print {
       body { background: #fff; color: #000; padding: 10px; }
-      .right-col, .actions-row, .instructions, .saved-section { display: none !important; }
+      .right-col, .actions-row, .instructions, .saved-section, .tab-bar { display: none !important; }
+      .tab-content { display: none !important; }
+      .tab-content#layout-tab { display: block !important; }
       .grid { background: #ccc; }
       .cell { background: #eee; }
       .bin { color: #000; border: 1px solid #000; }
@@ -194,73 +625,604 @@
   </style>
 </head>
 <body>
-  <h1>Gridfinity Bin Visualizer</h1>
-  <p class="subtitle">9x12 Grid (108 cells) &bull; Drawer: 3.25" &bull; Max bin: 50mm</p>
+  <h1>Gridfinity Yo' Drawer!</h1>
+  <p class="subtitle" id="gridSubtitle">9x12 Grid (108 cells)</p>
 
-  <div class="main-layout">
-    <div class="left-col">
-      <div class="grid-container">
-        <div class="grid" id="grid"></div>
-        <div class="grid-watermark">Fill<br>Your<br>Drawer</div>
-      </div>
-      <div class="actions-row">
-        <button onclick="clearGrid()">Clear</button>
-        <button onclick="saveLayout()">Save</button>
-        <button onclick="loadLayout()">Load</button>
-        <button onclick="printBinList()">Print Bin List</button>
-      </div>
-      <div class="saved-section">
-        <h3>Saved Layouts</h3>
-        <div class="saved-list" id="savedList"></div>
-      </div>
-    </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="about" onclick="switchTab('about')">About Gridfinity</button>
+    <button class="tab" data-tab="planning" onclick="switchTab('planning')">1 - Plan Your Base</button>
+    <button class="tab" data-tab="layout" onclick="switchTab('layout')">2 - Layout Your Bins</button>
+  </div>
 
-    <div class="right-col">
-      <div class="stats-row">
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-            <span class="progress-text" id="progressText">0% Filled</span>
+  <!-- Grid Planning Tab -->
+  <div class="tab-content" id="planning-tab">
+    <div class="planning-layout">
+      <div class="planning-section">
+        <h3>Units</h3>
+        <div class="unit-toggle">
+          <label class="unit-option">
+            <input type="radio" name="units" value="mm" checked onchange="onUnitsChange()">
+            Metric (mm)
+          </label>
+          <label class="unit-option">
+            <input type="radio" name="units" value="inches" onchange="onUnitsChange()">
+            US (inches)
+          </label>
+        </div>
+
+        <h3>Drawer Dimensions</h3>
+        <div class="input-group">
+          <div class="input-field">
+            <label>Width</label>
+            <input type="number" id="drawerWidth" value="378" step="any" oninput="onDimensionsChange()">
+            <span class="input-suffix" id="widthSuffix">mm</span>
+          </div>
+          <div class="input-field">
+            <label>Depth</label>
+            <input type="number" id="drawerDepth" value="504" step="any" oninput="onDimensionsChange()">
+            <span class="input-suffix" id="depthSuffix">mm</span>
           </div>
         </div>
-        <div class="stat-box">
-          <div class="value" id="cellCount">0/108</div>
-          <div class="label">Cells</div>
+        <div class="input-group">
+          <div class="input-field">
+            <label>Height (display only)</label>
+            <input type="number" id="drawerHeight" value="82.55" step="any" oninput="onDimensionsChange()">
+            <span class="input-suffix" id="heightSuffix">mm</span>
+          </div>
         </div>
-        <div class="stat-box">
-          <div class="value" id="binCount">0</div>
-          <div class="label">Bins</div>
+
+        <h3>Your Printer</h3>
+        <div class="input-group">
+          <div class="input-field" style="flex: 1;">
+            <label>Printer Preset</label>
+            <select id="printerPreset" onchange="onPrinterPresetChange()">
+              <option value="bambu-p1s">Bambu P1S/X1C/A1 (256×256mm)</option>
+              <option value="prusa-mk4">Prusa MK3/MK4 (250×210mm)</option>
+              <option value="prusa-mini">Prusa Mini (180×180mm)</option>
+              <option value="ender-3">Ender 3 (220×220mm)</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-group" id="customPrinterInputs" style="display: none;">
+          <div class="input-field">
+            <label>Bed Width</label>
+            <input type="number" id="printerWidth" value="256" step="any" oninput="onDimensionsChange()">
+            <span class="input-suffix">mm</span>
+          </div>
+          <div class="input-field">
+            <label>Bed Depth</label>
+            <input type="number" id="printerDepth" value="256" step="any" oninput="onDimensionsChange()">
+            <span class="input-suffix">mm</span>
+          </div>
         </div>
       </div>
 
-      <div class="bin-section">
-        <h3>Square</h3>
-        <div class="bin-row" id="squareBins"></div>
+      <div class="planning-section">
+        <h3>Results</h3>
+        <div class="results-box">
+          <div class="result-row">
+            <span class="result-label">Grid Size</span>
+            <span class="result-value" id="resultGridSize">9 × 12 (108 cells)</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Max Baseplate</span>
+            <span class="result-value" id="resultMaxBaseplate">6 × 6</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Width Gap</span>
+            <span class="result-value" id="resultWidthGap">0mm</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Depth Gap</span>
+            <span class="result-value" id="resultDepthGap">0mm</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Fit Quality</span>
+            <span class="result-value" id="resultFitQuality">Tight fit</span>
+          </div>
+        </div>
+
+        <div class="baseplate-options" id="baseplateOptions">
+          <!-- Baseplate recommendations will be inserted here -->
+        </div>
+
+        <div class="planning-actions">
+          <button class="btn-primary" onclick="applyToLayout()">Apply to Layout Your Bins →</button>
+          <button class="btn-warning" onclick="confirmNewDrawer()">New Drawer</button>
+        </div>
       </div>
 
-      <div class="bin-section">
-        <h3>Rectangular</h3>
-        <div class="bin-row" id="rectBins"></div>
+      <div class="drawer-viz-section">
+        <h3>Drawer Preview</h3>
+        <div class="drawer-container">
+          <div class="drawer-viz" id="drawerViz"></div>
+        </div>
+        <div class="drawer-stats" id="drawerStats">
+          <!-- Stats will be inserted here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bin Layout Tab -->
+  <div class="tab-content" id="layout-tab">
+    <div class="main-layout">
+      <div class="left-col">
+        <div class="grid-container">
+          <div class="grid" id="grid"></div>
+          <div class="grid-watermark">Fill<br>Your<br>Drawer</div>
+        </div>
+        <div class="actions-row">
+          <button onclick="clearGrid()">Clear</button>
+          <button onclick="saveLayout()">Save</button>
+          <button onclick="loadLayout()">Load</button>
+          <button onclick="printBinList()">Print Bin List</button>
+        </div>
+        <div class="saved-section">
+          <h3>Saved Layouts</h3>
+          <div class="saved-list" id="savedList"></div>
+        </div>
       </div>
 
-      <div class="bin-section">
-        <h3>Custom</h3>
-        <div class="bin-row" id="customBins"></div>
+      <div class="right-col">
+        <div class="stats-row">
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+              <span class="progress-text" id="progressText">0% Filled</span>
+            </div>
+          </div>
+          <div class="stat-box">
+            <div class="value" id="cellCount">0/108</div>
+            <div class="label">Cells</div>
+          </div>
+          <div class="stat-box">
+            <div class="value" id="binCount">0</div>
+            <div class="label">Bins</div>
+          </div>
+        </div>
+
+        <div class="bin-section">
+          <h3>Square</h3>
+          <div class="bin-row" id="squareBins"></div>
+        </div>
+
+        <div class="bin-section">
+          <h3>Rectangular</h3>
+          <div class="bin-row" id="rectBins"></div>
+        </div>
+
+        <div class="bin-section">
+          <h3>Custom</h3>
+          <div class="bin-row" id="customBins"></div>
+        </div>
+
+        <div class="instructions">
+          <span><strong>Click</strong> grid to place</span>
+          <span><strong>Click</strong> bin to remove</span>
+          <span><strong>R</strong> to rotate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About Tab -->
+  <div class="tab-content active" id="about-tab">
+    <div class="about-layout">
+
+      <div class="about-section">
+        <h2>What is Gridfinity?</h2>
+        <p>
+          Gridfinity is an open-source, modular storage system created by <strong><a href="https://github.com/zackfreedman" target="_blank" rel="noopener">Zack Freedman</a></strong> in 2022.
+          Born from the frustration of messy drawers and disorganized workspaces, Zack designed a simple but
+          brilliant system: a standardized grid of 42mm × 42mm units that allows bins, trays, and organizers
+          to snap together perfectly.
+        </p>
+        <p>
+          What started as a personal project quickly exploded into a global phenomenon. The maker community
+          embraced Gridfinity wholeheartedly, creating thousands of specialized bins for everything from
+          electronics components to art supplies, tools to kitchen gadgets. The beauty of the system lies
+          in its simplicity—everything is based on that 42mm grid unit, so any bin from any designer will
+          work with any baseplate.
+        </p>
+        <p>
+          Today, Gridfinity has become the de facto standard for 3D-printed organization, with an ecosystem
+          of generators, parametric designs, and pre-made models covering virtually any storage need you
+          can imagine.
+        </p>
+
+        <h3>The Original Introduction</h3>
+        <p>Watch Zack introduce the system that started it all:</p>
+        <a href="https://youtu.be/ra_9zU-mnl8" target="_blank" rel="noopener" class="video-link">
+          <img src="https://img.youtube.com/vi/ra_9zU-mnl8/hqdefault.jpg" alt="Gridfinity Introduction">
+          <div class="video-overlay"></div>
+          <div class="play-button"></div>
+          <div class="video-title">Gridfinity: Your Ultimate Workshop Organization System</div>
+        </a>
+
+        <h3>Official Resources</h3>
+        <ul>
+          <li><a href="https://github.com/zackfreedman/gridfinity" target="_blank" rel="noopener">Gridfinity GitHub Repository</a> — Original design files and specifications</li>
+          <li><a href="https://www.youtube.com/@ZackFreedman" target="_blank" rel="noopener">Zack Freedman's YouTube Channel</a> — More maker content and updates</li>
+        </ul>
       </div>
 
-      <div class="instructions">
-        <span><strong>Click</strong> grid to place</span>
-        <span><strong>Click</strong> bin to remove</span>
-        <span><strong>R</strong> to rotate</span>
+      <div class="about-section">
+        <h2>A Word of Caution</h2>
+        <div class="warning-box">
+          <p>
+            <strong>Fair warning:</strong> Gridfinity can become... addictive. What starts as "I'll just organize
+            one drawer" can turn into reorganizing your entire house, garage, and possibly your neighbor's workshop.
+          </p>
+        </div>
+        <p>Before you go too deep, watch this cautionary tale:</p>
+        <p><strong>tl;dr:</strong> You may spend 3 months organizing things and not get any actual work done.</p>
+        <a href="https://youtu.be/wPt5_V2pAH8" target="_blank" rel="noopener" class="video-link">
+          <img src="https://img.youtube.com/vi/wPt5_V2pAH8/hqdefault.jpg" alt="Gridfinity Warning">
+          <div class="video-overlay"></div>
+          <div class="play-button"></div>
+          <div class="video-title">Watch Before Starting Gridfinity</div>
+        </a>
       </div>
+
+      <div class="about-section">
+        <h2>Quickstart Guide</h2>
+        <p>
+          Ready to dive in? Here's everything you need to get started with Gridfinity in your first drawer.
+        </p>
+
+        <h3>Step 1: Get a Baseplate</h3>
+        <p>
+          The baseplate is the foundation—it sits in your drawer and provides the grid that bins snap into.
+          Use the <a href="#" onclick="switchTab('planning'); return false;">Plan Your Base</a> tab to figure out what size baseplate(s) you need based on your drawer dimensions.
+        </p>
+        <div class="resource-card">
+          <h4>Baseplate I Used</h4>
+          <p>
+            <a href="https://www.printables.com/model/478930-gridfinity-baseplate-quick-print-lite-version-less" target="_blank" rel="noopener">
+              Gridfinity Baseplate - Quick Print Lite Version
+            </a><br>
+            A lightweight baseplate that prints faster and uses less filament than the original design.
+          </p>
+        </div>
+        <p>
+          <a href="https://www.printables.com/search/models?ctx=models&q=gridfinity%20baseplate" target="_blank" rel="noopener">
+            Browse all baseplates on Printables →
+          </a>
+        </p>
+
+        <h3>Step 2: Choose Your Bins</h3>
+        <p>
+          This is where the fun begins. There are thousands of bin designs available—from simple open boxes
+          to specialized holders for specific tools, components, or items.
+        </p>
+        <div class="resource-card">
+          <h4>Bins I Used</h4>
+          <p>
+            <a href="https://makerworld.com/en/models/1060545-gridfinity-hex-bins-light-all-sizes#profileId-1048870" target="_blank" rel="noopener">
+              Gridfinity Hex Bins Light - All Sizes
+            </a><br>
+            Attractive hexagonal pattern bins available in all standard sizes. Light version prints faster.
+          </p>
+        </div>
+        <p>
+          <a href="https://makerworld.com/en/search/models?keyword=gridfinity+bins" target="_blank" rel="noopener">
+            Browse all bins on MakerWorld →
+          </a>
+        </p>
+
+        <h3>Step 3: Plan Your Layout</h3>
+        <p>
+          Use the <a href="#" onclick="switchTab('planning'); return false;">Plan Your Base</a> tab to enter your drawer dimensions and see how many grid
+          units you have to work with. Then use the <a href="#" onclick="switchTab('layout'); return false;">Layout Your Bins</a> tab to experiment with
+          different bin arrangements before you start printing.
+        </p>
+
+        <div class="tip-box">
+          <p>
+            <strong>Tip: Don't make bins too tall!</strong> Standard Gridfinity height units are 7mm each.
+            A common mistake is making bins taller than necessary, which wastes filament and print time.
+            For most small items, 2-3 height units (14-21mm internal height) is plenty. Only go taller
+            for items that genuinely need it. Remember: you can always stack shorter bins or print taller
+            ones later, but you can't shrink a bin that's already printed.
+          </p>
+        </div>
+
+        <h3>Common Bin Sizes</h3>
+        <ul>
+          <li><strong>1×1</strong> — Small components, screws, pills, SD cards</li>
+          <li><strong>1×2, 1×3, 1×4</strong> — Pens, pencils, tools, USB cables</li>
+          <li><strong>2×2</strong> — Tape rolls, small tools, component bags</li>
+          <li><strong>2×3, 2×4</strong> — Larger tools, parts containers</li>
+          <li><strong>3×3, 4×4</strong> — Big items, project boxes</li>
+        </ul>
+      </div>
+
     </div>
   </div>
 
   <div class="print-only print-list" id="printList"></div>
 
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+      <h3 id="modalTitle">Confirm Action</h3>
+      <p id="modalMessage">Are you sure?</p>
+      <div class="modal-actions">
+        <button onclick="closeModal()">Cancel</button>
+        <button class="btn-warning" id="modalConfirmBtn" onclick="confirmModalAction()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const GRID_WIDTH = 9;
-    const GRID_HEIGHT = 12;
+    // ============================================
+    // PURE UTILITY FUNCTIONS (Testable)
+    // ============================================
+
+    const GRID_UNIT = 42; // mm per grid unit
+    const MM_PER_INCH = 25.4;
+
+    /**
+     * Convert value to millimeters
+     * @param {number} value - The value to convert
+     * @param {string} unit - 'mm' or 'inches'
+     * @returns {number} Value in millimeters
+     */
+    function toMm(value, unit) {
+      if (typeof value !== 'number' || isNaN(value)) return 0;
+      return unit === 'inches' ? value * MM_PER_INCH : value;
+    }
+
+    /**
+     * Convert millimeters to specified unit
+     * @param {number} mm - Value in millimeters
+     * @param {string} unit - 'mm' or 'inches'
+     * @returns {number} Converted value
+     */
+    function fromMm(mm, unit) {
+      if (typeof mm !== 'number' || isNaN(mm)) return 0;
+      return unit === 'inches' ? mm / MM_PER_INCH : mm;
+    }
+
+    /**
+     * Calculate grid dimensions from drawer size
+     * @param {number} widthMm - Drawer width in mm
+     * @param {number} depthMm - Drawer depth in mm
+     * @returns {{cols: number, rows: number}} Grid dimensions
+     */
+    function calculateGridSize(widthMm, depthMm) {
+      const cols = Math.floor(widthMm / GRID_UNIT);
+      const rows = Math.floor(depthMm / GRID_UNIT);
+      return { cols: Math.max(0, cols), rows: Math.max(0, rows) };
+    }
+
+    /**
+     * Calculate maximum printable baseplate size
+     * @param {number} bedWidthMm - Printer bed width in mm
+     * @param {number} bedDepthMm - Printer bed depth in mm
+     * @returns {{width: number, height: number}} Max baseplate size in grid units
+     */
+    function calculateMaxBaseplate(bedWidthMm, bedDepthMm) {
+      const width = Math.floor(bedWidthMm / GRID_UNIT);
+      const height = Math.floor(bedDepthMm / GRID_UNIT);
+      return { width: Math.max(0, width), height: Math.max(0, height) };
+    }
+
+    /**
+     * Calculate gap between drawer and grid
+     * @param {number} drawerMm - Drawer dimension in mm
+     * @param {number} gridUnits - Number of grid units
+     * @returns {number} Gap in mm
+     */
+    function calculateGap(drawerMm, gridUnits) {
+      return drawerMm - (gridUnits * GRID_UNIT);
+    }
+
+    /**
+     * Get fit quality description based on gaps
+     * @param {number} widthGapMm - Width gap in mm
+     * @param {number} depthGapMm - Depth gap in mm
+     * @returns {{description: string, quality: string}} Fit quality info
+     */
+    function getFitQuality(widthGapMm, depthGapMm) {
+      const maxGap = Math.max(widthGapMm, depthGapMm);
+
+      if (maxGap < 5) {
+        return { description: 'Tight fit - minimal gap', quality: 'good' };
+      }
+      if (maxGap < 15) {
+        return { description: 'Good fit - small gap', quality: 'good' };
+      }
+      if (maxGap < 30) {
+        return { description: 'Moderate fit - noticeable gap', quality: 'moderate' };
+      }
+      return { description: 'Loose fit - consider filler', quality: 'loose' };
+    }
+
+    /**
+     * Find all divisor pairs of a number
+     * @param {number} n - Number to find divisors for
+     * @returns {Array<{a: number, b: number}>} Array of divisor pairs where a * b = n
+     */
+    function getDivisorPairs(n) {
+      const pairs = [];
+      for (let i = 1; i <= Math.sqrt(n); i++) {
+        if (n % i === 0) {
+          pairs.push({ a: i, b: n / i });
+        }
+      }
+      return pairs;
+    }
+
+    /**
+     * Calculate how many baseplates fit on a printer bed per print
+     * @param {number} baseplateW - Baseplate width in grid units
+     * @param {number} baseplateH - Baseplate height in grid units
+     * @param {number} bedWidthMm - Printer bed width in mm
+     * @param {number} bedDepthMm - Printer bed depth in mm
+     * @returns {{perPrint: number, acrossOnBed: number, downOnBed: number, rotated: boolean}}
+     */
+    function calculateBaseplatesPerPrint(baseplateW, baseplateH, bedWidthMm, bedDepthMm) {
+      const plateWidthMm = baseplateW * GRID_UNIT;
+      const plateHeightMm = baseplateH * GRID_UNIT;
+
+      // Try normal orientation
+      const normalAcross = Math.floor(bedWidthMm / plateWidthMm);
+      const normalDown = Math.floor(bedDepthMm / plateHeightMm);
+      const normalCount = normalAcross * normalDown;
+
+      // Try rotated orientation
+      const rotatedAcross = Math.floor(bedWidthMm / plateHeightMm);
+      const rotatedDown = Math.floor(bedDepthMm / plateWidthMm);
+      const rotatedCount = rotatedAcross * rotatedDown;
+
+      if (rotatedCount > normalCount) {
+        return {
+          perPrint: rotatedCount,
+          acrossOnBed: rotatedAcross,
+          downOnBed: rotatedDown,
+          rotated: true
+        };
+      }
+      return {
+        perPrint: normalCount,
+        acrossOnBed: normalAcross,
+        downOnBed: normalDown,
+        rotated: false
+      };
+    }
+
+    /**
+     * Calculate number of prints required
+     * @param {number} totalBaseplates - Total baseplates needed
+     * @param {number} perPrint - Baseplates that fit per print
+     * @returns {{prints: number, lastPrintCount: number}}
+     */
+    function calculatePrintsRequired(totalBaseplates, perPrint) {
+      if (perPrint <= 0) return { prints: Infinity, lastPrintCount: 0 };
+      const prints = Math.ceil(totalBaseplates / perPrint);
+      const lastPrintCount = totalBaseplates % perPrint || perPrint;
+      return { prints, lastPrintCount };
+    }
+
+    /**
+     * Calculate baseplate recommendations
+     * @param {number} gridCols - Grid columns
+     * @param {number} gridRows - Grid rows
+     * @param {number} maxW - Max baseplate width in grid units
+     * @param {number} maxH - Max baseplate height in grid units
+     * @param {number} bedWidthMm - Printer bed width in mm
+     * @param {number} bedDepthMm - Printer bed depth in mm
+     * @returns {Array} Array of baseplate options sorted by prints required
+     */
+    function calculateBaseplateRecommendations(gridCols, gridRows, maxW, maxH, bedWidthMm, bedDepthMm) {
+      if (gridCols <= 0 || gridRows <= 0 || maxW <= 0 || maxH <= 0) {
+        return [];
+      }
+
+      const options = [];
+
+      // Find all valid baseplate sizes that can tile the grid exactly
+      const colDivisors = getDivisorPairs(gridCols);
+      const rowDivisors = getDivisorPairs(gridRows);
+
+      // Try each combination of column and row divisions
+      for (const colDiv of colDivisors) {
+        for (const rowDiv of rowDivisors) {
+          // baseplateW x baseplateH with (colDiv.a x rowDiv.a) baseplates
+          const baseplateW = colDiv.b;
+          const baseplateH = rowDiv.b;
+          const countX = colDiv.a;
+          const countY = rowDiv.a;
+
+          // Check if baseplate fits on printer bed
+          if (baseplateW <= maxW && baseplateH <= maxH) {
+            const totalBaseplates = countX * countY;
+
+            // Calculate prints required
+            const printInfo = calculateBaseplatesPerPrint(baseplateW, baseplateH, bedWidthMm, bedDepthMm);
+            const { prints, lastPrintCount } = calculatePrintsRequired(totalBaseplates, printInfo.perPrint);
+
+            options.push({
+              width: baseplateW,
+              height: baseplateH,
+              countX: countX,
+              countY: countY,
+              total: totalBaseplates,
+              prints: prints,
+              perPrint: printInfo.perPrint,
+              lastPrintCount: lastPrintCount,
+              printRotated: printInfo.rotated,
+              description: `${totalBaseplates}× ${baseplateW}×${baseplateH} baseplate${totalBaseplates > 1 ? 's' : ''}`,
+              detail: `${countX} across × ${countY} down`
+            });
+          }
+        }
+      }
+
+      // Sort by fewest prints first, then by fewest baseplates as tiebreaker
+      options.sort((a, b) => {
+        if (a.prints !== b.prints) return a.prints - b.prints;
+        return a.total - b.total;
+      });
+
+      // Remove duplicates and limit to top 4 unique options
+      const unique = [];
+      const seen = new Set();
+      for (const opt of options) {
+        const key = `${opt.width}x${opt.height}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(opt);
+          if (unique.length >= 4) break;
+        }
+      }
+
+      return unique;
+    }
+
+    /**
+     * Check if any bins would be affected by a grid resize
+     * @param {Array} bins - Array of placed bins
+     * @param {number} newCols - New column count
+     * @param {number} newRows - New row count
+     * @returns {Array} Array of affected bins
+     */
+    function getAffectedBins(bins, newCols, newRows) {
+      return bins.filter(bin => {
+        const binRight = bin.x + bin.w;
+        const binBottom = bin.y + bin.h;
+        return binRight > newCols || binBottom > newRows;
+      });
+    }
+
+    /**
+     * Check if a bin can be placed at a position
+     * @param {Array<Array>} grid - 2D grid array
+     * @param {number} x - X position
+     * @param {number} y - Y position
+     * @param {number} w - Bin width
+     * @param {number} h - Bin height
+     * @param {number} gridWidth - Grid width
+     * @param {number} gridHeight - Grid height
+     * @returns {boolean} True if bin can be placed
+     */
+    function canPlaceBin(grid, x, y, w, h, gridWidth, gridHeight) {
+      if (x + w > gridWidth || y + h > gridHeight) return false;
+      for (let dy = 0; dy < h; dy++) {
+        for (let dx = 0; dx < w; dx++) {
+          if (grid[y + dy][x + dx] !== null) return false;
+        }
+      }
+      return true;
+    }
+
+    // ============================================
+    // APPLICATION STATE
+    // ============================================
+
     const CELL_SIZE = 40;
     const GAP = 1;
 
@@ -281,12 +1243,464 @@
       { w: 5, h: 5, color: '#106492' },
     ];
 
-    let grid = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(null));
+    const PRINTER_PRESETS = {
+      'bambu-p1s': { width: 256, depth: 256, name: 'Bambu P1S/X1C/A1' },
+      'prusa-mk4': { width: 250, depth: 210, name: 'Prusa MK3/MK4' },
+      'prusa-mini': { width: 180, depth: 180, name: 'Prusa Mini' },
+      'ender-3': { width: 220, depth: 220, name: 'Ender 3' },
+    };
+
+    // Dynamic grid dimensions
+    let GRID_WIDTH = 9;
+    let GRID_HEIGHT = 12;
+
+    let grid = [];
     let bins = [];
     let selectedBin = BIN_TYPES[0];
     let customBin = null;
     let rotated = false;
     let binIdCounter = 0;
+
+    // Settings state
+    let settings = {
+      units: 'mm',
+      drawer: { width: 378, depth: 504, height: 82.55 },
+      printer: { preset: 'bambu-p1s', width: 256, depth: 256 }
+    };
+
+    // Modal callback
+    let modalCallback = null;
+
+    // Current baseplate recommendations and selection
+    let currentRecommendations = [];
+    let selectedBaseplateIndex = 0;
+
+    // ============================================
+    // SETTINGS PERSISTENCE
+    // ============================================
+
+    const SETTINGS_KEY = 'gridfinity-settings';
+    const STORAGE_KEY = 'gridfinity-layouts';
+    const MAX_SAVED = 6;
+
+    function loadSettings() {
+      try {
+        const saved = localStorage.getItem(SETTINGS_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          settings = { ...settings, ...parsed };
+        }
+      } catch (e) {
+        console.warn('Failed to load settings:', e);
+      }
+    }
+
+    function saveSettings() {
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      } catch (e) {
+        console.warn('Failed to save settings:', e);
+      }
+    }
+
+    function applySettingsToUI() {
+      // Units
+      document.querySelector(`input[name="units"][value="${settings.units}"]`).checked = true;
+
+      // Drawer dimensions (convert from mm to current unit for display)
+      const displayWidth = fromMm(settings.drawer.width, settings.units);
+      const displayDepth = fromMm(settings.drawer.depth, settings.units);
+      const displayHeight = fromMm(settings.drawer.height, settings.units);
+
+      document.getElementById('drawerWidth').value = roundForDisplay(displayWidth, settings.units);
+      document.getElementById('drawerDepth').value = roundForDisplay(displayDepth, settings.units);
+      document.getElementById('drawerHeight').value = roundForDisplay(displayHeight, settings.units);
+
+      // Unit suffixes
+      const suffix = settings.units === 'inches' ? 'in' : 'mm';
+      document.getElementById('widthSuffix').textContent = suffix;
+      document.getElementById('depthSuffix').textContent = suffix;
+      document.getElementById('heightSuffix').textContent = suffix;
+
+      // Printer
+      document.getElementById('printerPreset').value = settings.printer.preset;
+      document.getElementById('customPrinterInputs').style.display =
+        settings.printer.preset === 'custom' ? 'flex' : 'none';
+
+      if (settings.printer.preset === 'custom') {
+        document.getElementById('printerWidth').value = settings.printer.width;
+        document.getElementById('printerDepth').value = settings.printer.depth;
+      }
+    }
+
+    function roundForDisplay(value, unit) {
+      return unit === 'inches' ? Math.round(value * 100) / 100 : Math.round(value * 10) / 10;
+    }
+
+    // ============================================
+    // TAB MANAGEMENT
+    // ============================================
+
+    function switchTab(tabId) {
+      // Update tab buttons
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === tabId);
+      });
+
+      // Update tab content
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.toggle('active', content.id === `${tabId}-tab`);
+      });
+    }
+
+    // ============================================
+    // PLANNING TAB HANDLERS
+    // ============================================
+
+    function onUnitsChange() {
+      const newUnits = document.querySelector('input[name="units"]:checked').value;
+      const oldUnits = settings.units;
+
+      if (newUnits === oldUnits) return;
+
+      // Convert displayed values to new units
+      const widthMm = settings.drawer.width;
+      const depthMm = settings.drawer.depth;
+      const heightMm = settings.drawer.height;
+
+      settings.units = newUnits;
+
+      // Update display
+      const suffix = newUnits === 'inches' ? 'in' : 'mm';
+      document.getElementById('widthSuffix').textContent = suffix;
+      document.getElementById('depthSuffix').textContent = suffix;
+      document.getElementById('heightSuffix').textContent = suffix;
+
+      document.getElementById('drawerWidth').value = roundForDisplay(fromMm(widthMm, newUnits), newUnits);
+      document.getElementById('drawerDepth').value = roundForDisplay(fromMm(depthMm, newUnits), newUnits);
+      document.getElementById('drawerHeight').value = roundForDisplay(fromMm(heightMm, newUnits), newUnits);
+
+      saveSettings();
+      updateResults();
+    }
+
+    function onDimensionsChange() {
+      // Read values and convert to mm for storage
+      const width = parseFloat(document.getElementById('drawerWidth').value) || 0;
+      const depth = parseFloat(document.getElementById('drawerDepth').value) || 0;
+      const height = parseFloat(document.getElementById('drawerHeight').value) || 0;
+
+      settings.drawer.width = toMm(width, settings.units);
+      settings.drawer.depth = toMm(depth, settings.units);
+      settings.drawer.height = toMm(height, settings.units);
+
+      // Custom printer dimensions (always in mm)
+      if (settings.printer.preset === 'custom') {
+        settings.printer.width = parseFloat(document.getElementById('printerWidth').value) || 0;
+        settings.printer.depth = parseFloat(document.getElementById('printerDepth').value) || 0;
+      }
+
+      saveSettings();
+      updateResults();
+    }
+
+    function onPrinterPresetChange() {
+      const preset = document.getElementById('printerPreset').value;
+      settings.printer.preset = preset;
+
+      const customInputs = document.getElementById('customPrinterInputs');
+
+      if (preset === 'custom') {
+        customInputs.style.display = 'flex';
+      } else {
+        customInputs.style.display = 'none';
+        const presetData = PRINTER_PRESETS[preset];
+        settings.printer.width = presetData.width;
+        settings.printer.depth = presetData.depth;
+      }
+
+      saveSettings();
+      updateResults();
+    }
+
+    function updateResults() {
+      const gridSize = calculateGridSize(settings.drawer.width, settings.drawer.depth);
+      const maxBaseplate = calculateMaxBaseplate(settings.printer.width, settings.printer.depth);
+      const widthGap = calculateGap(settings.drawer.width, gridSize.cols);
+      const depthGap = calculateGap(settings.drawer.depth, gridSize.rows);
+      const fitQuality = getFitQuality(widthGap, depthGap);
+
+      // Update result display
+      const totalCells = gridSize.cols * gridSize.rows;
+      document.getElementById('resultGridSize').textContent =
+        `${gridSize.cols} × ${gridSize.rows} (${totalCells} cells)`;
+
+      document.getElementById('resultMaxBaseplate').textContent =
+        `${maxBaseplate.width} × ${maxBaseplate.height}`;
+
+      // Show gaps in both units
+      const widthGapDisplay = settings.units === 'inches'
+        ? `${roundForDisplay(fromMm(widthGap, 'inches'), 'inches')}in (${Math.round(widthGap)}mm)`
+        : `${Math.round(widthGap)}mm`;
+      const depthGapDisplay = settings.units === 'inches'
+        ? `${roundForDisplay(fromMm(depthGap, 'inches'), 'inches')}in (${Math.round(depthGap)}mm)`
+        : `${Math.round(depthGap)}mm`;
+
+      document.getElementById('resultWidthGap').textContent = widthGapDisplay;
+      document.getElementById('resultDepthGap').textContent = depthGapDisplay;
+
+      const fitEl = document.getElementById('resultFitQuality');
+      fitEl.textContent = fitQuality.description;
+      fitEl.className = `result-value ${fitQuality.quality}`;
+
+      // Update baseplate recommendations (now with print counts)
+      currentRecommendations = calculateBaseplateRecommendations(
+        gridSize.cols, gridSize.rows,
+        maxBaseplate.width, maxBaseplate.height,
+        settings.printer.width, settings.printer.depth
+      );
+
+      // Reset selection if out of bounds
+      if (selectedBaseplateIndex >= currentRecommendations.length) {
+        selectedBaseplateIndex = 0;
+      }
+
+      renderBaseplateOptions();
+      renderDrawerVisualization(gridSize.cols, gridSize.rows);
+    }
+
+    function renderBaseplateOptions() {
+      const optionsContainer = document.getElementById('baseplateOptions');
+
+      if (currentRecommendations.length === 0) {
+        optionsContainer.innerHTML = '<p style="color: #888; font-size: 0.85rem;">No valid baseplate configurations found. Try a larger printer bed or smaller drawer.</p>';
+        return;
+      }
+
+      optionsContainer.innerHTML = '<h4 style="margin: 0 0 10px; font-size: 0.85rem; color: #888;">Baseplate Options (sorted by fewest prints)</h4>' +
+        currentRecommendations.map((opt, i) => `
+          <div class="baseplate-option ${i === selectedBaseplateIndex ? 'selected' : ''}" onclick="selectBaseplateOption(${i})">
+            <div class="baseplate-header">
+              <input type="radio" name="baseplate" class="baseplate-radio" ${i === selectedBaseplateIndex ? 'checked' : ''} onchange="selectBaseplateOption(${i})">
+              <div class="baseplate-title">Option ${String.fromCharCode(65 + i)}: ${opt.description}</div>
+              <div class="baseplate-prints">${opt.prints} print${opt.prints > 1 ? 's' : ''}</div>
+            </div>
+            <div class="baseplate-detail">${opt.detail} · ${opt.perPrint} per print${opt.printRotated ? ' (rotated on bed)' : ''}</div>
+          </div>
+        `).join('');
+    }
+
+    function selectBaseplateOption(index) {
+      selectedBaseplateIndex = index;
+      renderBaseplateOptions();
+
+      const gridSize = calculateGridSize(settings.drawer.width, settings.drawer.depth);
+      renderDrawerVisualization(gridSize.cols, gridSize.rows);
+    }
+
+    function renderDrawerVisualization(gridCols, gridRows) {
+      const vizContainer = document.getElementById('drawerViz');
+      const statsContainer = document.getElementById('drawerStats');
+
+      if (currentRecommendations.length === 0 || gridCols <= 0 || gridRows <= 0) {
+        vizContainer.innerHTML = '<div style="color: #666; font-size: 0.85rem; padding: 20px;">No valid configuration</div>';
+        statsContainer.innerHTML = '';
+        return;
+      }
+
+      const opt = currentRecommendations[selectedBaseplateIndex];
+
+      // Calculate cell size to fit in container (max ~300px wide)
+      const maxWidth = 300;
+      const maxHeight = 250;
+      const cellSize = Math.min(
+        Math.floor(maxWidth / gridCols),
+        Math.floor(maxHeight / gridRows),
+        30 // Max cell size
+      );
+
+      // Set up the grid
+      vizContainer.style.gridTemplateColumns = `repeat(${opt.countX}, 1fr)`;
+      vizContainer.style.gridTemplateRows = `repeat(${opt.countY}, 1fr)`;
+      vizContainer.style.width = `${gridCols * cellSize + (opt.countX + 1) * 2}px`;
+      vizContainer.style.height = `${gridRows * cellSize + (opt.countY + 1) * 2}px`;
+
+      // Create baseplate cells
+      let html = '';
+      for (let y = 0; y < opt.countY; y++) {
+        for (let x = 0; x < opt.countX; x++) {
+          const isAlt = (x + y) % 2 === 1;
+          const plateWidth = opt.width * cellSize;
+          const plateHeight = opt.height * cellSize;
+          html += `
+            <div class="baseplate-cell ${isAlt ? 'alt' : ''}"
+                 style="width: ${plateWidth}px; height: ${plateHeight}px;">
+              ${opt.width}×${opt.height}
+            </div>
+          `;
+        }
+      }
+      vizContainer.innerHTML = html;
+
+      // Render stats
+      const printBreakdown = generatePrintBreakdown(opt);
+      statsContainer.innerHTML = `
+        <div class="drawer-stat-row">
+          <span class="drawer-stat-label">Baseplate Size</span>
+          <span class="drawer-stat-value">${opt.width}×${opt.height} (${opt.width * GRID_UNIT}×${opt.height * GRID_UNIT}mm)</span>
+        </div>
+        <div class="drawer-stat-row">
+          <span class="drawer-stat-label">Total Baseplates</span>
+          <span class="drawer-stat-value">${opt.total}</span>
+        </div>
+        <div class="drawer-stat-row">
+          <span class="drawer-stat-label">Per Print</span>
+          <span class="drawer-stat-value">${opt.perPrint}${opt.printRotated ? ' (rotated)' : ''}</span>
+        </div>
+        <div class="drawer-stat-row">
+          <span class="drawer-stat-label">Total Prints</span>
+          <span class="drawer-stat-value highlight">${opt.prints}</span>
+        </div>
+        <div class="print-breakdown">${printBreakdown}</div>
+      `;
+    }
+
+    function generatePrintBreakdown(opt) {
+      if (opt.prints === 1) {
+        return `Print 1: ${opt.total} baseplate${opt.total > 1 ? 's' : ''}`;
+      }
+
+      const lines = [];
+      let remaining = opt.total;
+      for (let i = 1; i <= opt.prints; i++) {
+        const count = Math.min(remaining, opt.perPrint);
+        lines.push(`Print ${i}: ${count} baseplate${count > 1 ? 's' : ''}`);
+        remaining -= count;
+      }
+      return lines.join('<br>');
+    }
+
+    function applyToLayout() {
+      const gridSize = calculateGridSize(settings.drawer.width, settings.drawer.depth);
+
+      if (gridSize.cols <= 0 || gridSize.rows <= 0) {
+        alert('Invalid drawer dimensions - grid must be at least 1x1');
+        return;
+      }
+
+      // Check for affected bins
+      const affected = getAffectedBins(bins, gridSize.cols, gridSize.rows);
+
+      if (affected.length > 0) {
+        const binList = affected.map(b => `• ${b.w}×${b.h} at position (${b.x}, ${b.y})`).join('\n');
+        showModal(
+          'Bins Will Be Removed',
+          `Resizing to ${gridSize.cols}×${gridSize.rows} will remove ${affected.length} bin(s):\n\n${binList}\n\nContinue?`,
+          () => {
+            applyGridSize(gridSize.cols, gridSize.rows, true);
+            switchTab('layout');
+          }
+        );
+      } else {
+        applyGridSize(gridSize.cols, gridSize.rows, false);
+        switchTab('layout');
+      }
+    }
+
+    function applyGridSize(newCols, newRows, removeAffected) {
+      const oldCols = GRID_WIDTH;
+      const oldRows = GRID_HEIGHT;
+
+      GRID_WIDTH = newCols;
+      GRID_HEIGHT = newRows;
+
+      // Remove affected bins if needed
+      if (removeAffected) {
+        const affected = getAffectedBins(bins, newCols, newRows);
+        affected.forEach(bin => {
+          // Clear grid cells
+          for (let dy = 0; dy < bin.h; dy++) {
+            for (let dx = 0; dx < bin.w; dx++) {
+              if (bin.y + dy < oldRows && bin.x + dx < oldCols) {
+                grid[bin.y + dy][bin.x + dx] = null;
+              }
+            }
+          }
+        });
+        bins = bins.filter(b => !affected.includes(b));
+      }
+
+      // Resize grid array
+      const newGrid = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(null));
+
+      // Copy existing data
+      for (let y = 0; y < Math.min(oldRows, newRows); y++) {
+        for (let x = 0; x < Math.min(oldCols, newCols); x++) {
+          if (grid[y] && grid[y][x] !== undefined) {
+            newGrid[y][x] = grid[y][x];
+          }
+        }
+      }
+
+      grid = newGrid;
+
+      // Update subtitle
+      updateSubtitle();
+
+      // Re-render
+      renderGrid();
+      updateStats();
+    }
+
+    function updateSubtitle() {
+      const totalCells = GRID_WIDTH * GRID_HEIGHT;
+      document.getElementById('gridSubtitle').textContent =
+        `${GRID_WIDTH}x${GRID_HEIGHT} Grid (${totalCells} cells)`;
+    }
+
+    function confirmNewDrawer() {
+      if (bins.length > 0) {
+        showModal(
+          'Clear All Bins?',
+          'This will clear all bin placements and start fresh. Continue?',
+          () => {
+            clearGrid();
+            switchTab('layout');
+          }
+        );
+      } else {
+        const gridSize = calculateGridSize(settings.drawer.width, settings.drawer.depth);
+        applyGridSize(gridSize.cols, gridSize.rows, false);
+        switchTab('layout');
+      }
+    }
+
+    // ============================================
+    // MODAL MANAGEMENT
+    // ============================================
+
+    function showModal(title, message, onConfirm) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMessage').textContent = message;
+      document.getElementById('confirmModal').classList.add('active');
+      modalCallback = onConfirm;
+    }
+
+    function closeModal() {
+      document.getElementById('confirmModal').classList.remove('active');
+      modalCallback = null;
+    }
+
+    function confirmModalAction() {
+      if (modalCallback) {
+        modalCallback();
+      }
+      closeModal();
+    }
+
+    // ============================================
+    // BIN LAYOUT TAB (Existing functionality)
+    // ============================================
 
     function getCurrentDimensions() {
       const { w, h } = selectedBin;
@@ -296,7 +1710,7 @@
     function rotateBin() {
       if (selectedBin.w !== selectedBin.h) {
         rotated = !rotated;
-                const hoverCell = document.querySelector('.cell:hover');
+        const hoverCell = document.querySelector('.cell:hover');
         if (hoverCell) {
           showPreview(parseInt(hoverCell.dataset.x), parseInt(hoverCell.dataset.y));
         }
@@ -304,6 +1718,21 @@
     }
 
     function init() {
+      // Load settings
+      loadSettings();
+      applySettingsToUI();
+
+      // Initialize grid with settings
+      const gridSize = calculateGridSize(settings.drawer.width, settings.drawer.depth);
+      if (gridSize.cols > 0 && gridSize.rows > 0) {
+        GRID_WIDTH = gridSize.cols;
+        GRID_HEIGHT = gridSize.rows;
+      }
+
+      grid = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(null));
+
+      updateSubtitle();
+      updateResults();
       renderGrid();
       renderBinOptions();
       updateStats();
@@ -312,11 +1741,20 @@
       document.addEventListener('keydown', (e) => {
         if (e.key === 'r' || e.key === 'R') rotateBin();
       });
+
+      // Close modal on overlay click
+      document.getElementById('confirmModal').addEventListener('click', (e) => {
+        if (e.target.id === 'confirmModal') closeModal();
+      });
     }
 
     function renderGrid() {
       const gridEl = document.getElementById('grid');
       gridEl.innerHTML = '';
+
+      // Update grid CSS
+      gridEl.style.gridTemplateColumns = `repeat(${GRID_WIDTH}, ${CELL_SIZE}px)`;
+      gridEl.style.gridTemplateRows = `repeat(${GRID_HEIGHT}, ${CELL_SIZE}px)`;
 
       for (let y = 0; y < GRID_HEIGHT; y++) {
         for (let x = 0; x < GRID_WIDTH; x++) {
@@ -391,7 +1829,7 @@
     }
 
     function promptCustomBin() {
-      const width = prompt('Enter bin width (1-9):', customBin?.w || '');
+      const width = prompt(`Enter bin width (1-${GRID_WIDTH}):`, customBin?.w || '');
       if (width === null) return;
       const w = parseInt(width);
       if (isNaN(w) || w < 1 || w > GRID_WIDTH) {
@@ -399,7 +1837,7 @@
         return;
       }
 
-      const height = prompt('Enter bin height (1-12):', customBin?.h || '');
+      const height = prompt(`Enter bin height (1-${GRID_HEIGHT}):`, customBin?.h || '');
       if (height === null) return;
       const h = parseInt(height);
       if (isNaN(h) || h < 1 || h > GRID_HEIGHT) {
@@ -411,16 +1849,10 @@
       selectedBin = customBin;
       rotated = false;
       renderBinOptions();
-          }
+    }
 
     function canPlace(x, y, w, h) {
-      if (x + w > GRID_WIDTH || y + h > GRID_HEIGHT) return false;
-      for (let dy = 0; dy < h; dy++) {
-        for (let dx = 0; dx < w; dx++) {
-          if (grid[y + dy][x + dx] !== null) return false;
-        }
-      }
-      return true;
+      return canPlaceBin(grid, x, y, w, h, GRID_WIDTH, GRID_HEIGHT);
     }
 
     function showPreview(x, y) {
@@ -535,9 +1967,6 @@
       window.print();
     }
 
-    const STORAGE_KEY = 'gridfinity-layouts';
-    const MAX_SAVED = 6;
-
     function getSavedLayouts() {
       try {
         return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -553,12 +1982,16 @@
       }
 
       const layouts = getSavedLayouts();
+      const totalCells = GRID_WIDTH * GRID_HEIGHT;
       const newLayout = {
         id: Date.now(),
         date: new Date().toLocaleDateString(),
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         bins: bins.map(b => ({ x: b.x, y: b.y, w: b.w, h: b.h, color: b.color })),
-        cellsUsed: grid.flat().filter(c => c !== null).length
+        cellsUsed: grid.flat().filter(c => c !== null).length,
+        gridWidth: GRID_WIDTH,
+        gridHeight: GRID_HEIGHT,
+        totalCells: totalCells
       };
 
       layouts.unshift(newLayout);
@@ -576,6 +2009,13 @@
         return;
       }
 
+      // Restore grid size if saved
+      if (layout.gridWidth && layout.gridHeight) {
+        GRID_WIDTH = layout.gridWidth;
+        GRID_HEIGHT = layout.gridHeight;
+        updateSubtitle();
+      }
+
       clearGrid();
 
       layout.bins.forEach(b => {
@@ -585,7 +2025,11 @@
           binType = BIN_TYPES.find(t => t.w === b.h && t.h === b.w);
           needsRotate = true;
         }
-        if (binType && canPlace(b.x, b.y, b.w, b.h)) {
+        if (!binType) {
+          // Custom bin
+          binType = { w: b.w, h: b.h, color: b.color || '#4a6670' };
+        }
+        if (canPlace(b.x, b.y, b.w, b.h)) {
           selectedBin = binType;
           rotated = needsRotate;
           placeBin(b.x, b.y);
@@ -595,7 +2039,8 @@
       selectedBin = BIN_TYPES[0];
       rotated = false;
       renderBinOptions();
-          }
+      renderGrid();
+    }
 
     function deleteLayout(id, e) {
       e.stopPropagation();
@@ -613,17 +2058,25 @@
         return;
       }
 
-      container.innerHTML = layouts.map(layout => `
-        <div class="saved-item" onclick="loadLayout(${layout.id})">
-          <div class="preview">${renderMiniGrid(layout.bins)}</div>
-          <div class="meta">${layout.date}<br>${layout.cellsUsed}/108</div>
-          <div class="delete" onclick="deleteLayout(${layout.id}, event)">delete</div>
-        </div>
-      `).join('');
+      container.innerHTML = layouts.map(layout => {
+        const totalCells = layout.totalCells || (layout.gridWidth * layout.gridHeight) || 108;
+        return `
+          <div class="saved-item" onclick="loadLayout(${layout.id})">
+            <div class="preview">${renderMiniGrid(layout.bins, layout.gridWidth || 9, layout.gridHeight || 12)}</div>
+            <div class="meta">${layout.date}<br>${layout.cellsUsed}/${totalCells}</div>
+            <div class="delete" onclick="deleteLayout(${layout.id}, event)">delete</div>
+          </div>
+        `;
+      }).join('');
     }
 
-    function renderMiniGrid(layoutBins) {
-      const scale = 75 / (GRID_WIDTH * CELL_SIZE);
+    function renderMiniGrid(layoutBins, gridW = 9, gridH = 12) {
+      const previewWidth = 75;
+      const previewHeight = 100;
+      const scaleX = previewWidth / (gridW * CELL_SIZE);
+      const scaleY = previewHeight / (gridH * CELL_SIZE);
+      const scale = Math.min(scaleX, scaleY);
+
       let html = '';
       layoutBins.forEach(bin => {
         const left = bin.x * CELL_SIZE * scale;
@@ -634,6 +2087,28 @@
       });
       return html;
     }
+
+    // ============================================
+    // EXPOSE FUNCTIONS FOR TESTING
+    // ============================================
+
+    // Make pure functions available globally for testing
+    window.GridfinityUtils = {
+      toMm,
+      fromMm,
+      calculateGridSize,
+      calculateMaxBaseplate,
+      calculateGap,
+      getFitQuality,
+      getDivisorPairs,
+      calculateBaseplatesPerPrint,
+      calculatePrintsRequired,
+      calculateBaseplateRecommendations,
+      getAffectedBins,
+      canPlaceBin,
+      GRID_UNIT,
+      MM_PER_INCH
+    };
 
     init();
   </script>
