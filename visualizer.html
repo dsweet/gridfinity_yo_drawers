@@ -603,7 +603,7 @@
     /* Print styles */
     @media print {
       body { background: #fff; color: #000; padding: 10px; }
-      .right-col, .actions-row, .instructions, .saved-section, .tab-bar { display: none !important; }
+      .right-col, .actions-row, .instructions, .saved-section, .tab-bar, .site-footer { display: none !important; }
       .tab-content { display: none !important; }
       .tab-content#layout-tab { display: block !important; }
       .grid { background: #ccc; }
@@ -618,6 +618,23 @@
       .print-list th { background: #f0f0f0; }
     }
     .print-only { display: none; }
+
+    /* Footer */
+    .site-footer {
+      margin-top: 40px;
+      padding: 20px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #666;
+      border-top: 1px solid #333;
+    }
+    .site-footer a {
+      color: #5b91ad;
+      text-decoration: none;
+    }
+    .site-footer a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -892,6 +909,11 @@
       </div>
     </div>
   </div>
+
+  <footer class="site-footer">
+    <a href="https://github.com/dsweet/gridfinity_yo_drawers" target="_blank" rel="noopener">GitHub</a> ·
+    <a href="https://github.com/dsweet/gridfinity_yo_drawers/blob/main/LICENSE" target="_blank" rel="noopener">PolyForm Noncommercial 1.0.0</a>
+  </footer>
 
   <script>
     // ============================================
