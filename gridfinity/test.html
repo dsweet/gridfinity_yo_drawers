@@ -160,10 +160,11 @@
 
     function getFitQuality(widthGapMm, depthGapMm) {
       const maxGap = Math.max(widthGapMm, depthGapMm);
-      if (maxGap < 5) return { description: 'Tight fit - minimal gap', quality: 'good' };
-      if (maxGap < 15) return { description: 'Good fit - small gap', quality: 'good' };
-      if (maxGap < 30) return { description: 'Moderate fit - noticeable gap', quality: 'moderate' };
-      return { description: 'Loose fit - consider filler', quality: 'loose' };
+      const gapText = `(${Math.round(maxGap)}mm)`;
+      if (maxGap < 5) return { description: `Tight fit - minimal gap ${gapText}`, quality: 'good' };
+      if (maxGap < 15) return { description: `Good fit - small gap ${gapText}`, quality: 'good' };
+      if (maxGap < 30) return { description: `Moderate fit - noticeable gap ${gapText}`, quality: 'moderate' };
+      return { description: `Loose fit - consider filler ${gapText}`, quality: 'loose' };
     }
 
     function getDivisorPairs(n) {

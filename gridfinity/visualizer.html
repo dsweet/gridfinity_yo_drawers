@@ -15,7 +15,7 @@
       min-height: 100vh;
     }
     h1 { margin: 0 0 5px 0; font-size: 2.8rem; }
-    .subtitle { color: #888; margin-bottom: 15px; font-size: 0.85rem; }
+    .subtitle { color: #888; margin: 0 0 15px 0; font-size: 0.95rem; font-style: italic; }
 
     /* Tab styling */
     .tab-bar {
@@ -198,27 +198,23 @@
       min-height: 200px;
     }
     .drawer-viz {
-      background: #1a1a2e;
+      background: #333;
       border: 2px solid #4a4a6a;
       border-radius: 4px;
       position: relative;
       display: grid;
-      gap: 2px;
-      padding: 2px;
+      gap: 1px;
+      padding: 1px;
     }
-    .baseplate-cell {
-      background: #3d7fa2;
-      border-radius: 2px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.8);
-      position: relative;
+    .grid-cell {
+      background: #2a2a4a;
+      border-radius: 1px;
     }
-    .baseplate-cell.alt {
-      background: #2e769d;
+    .grid-cell.plate-a {
+      background: #2e4a5a;
+    }
+    .grid-cell.plate-b {
+      background: #3a5a6a;
     }
     .drawer-stats {
       margin-top: 15px;
@@ -626,7 +622,7 @@
 </head>
 <body>
   <h1>Gridfinity Yo' Drawer!</h1>
-  <p class="subtitle" id="gridSubtitle">9x12 Grid (108 cells)</p>
+  <p class="subtitle">Fix yo' drawer, Fix yo' life</p>
 
   <div class="tab-bar">
     <button class="tab active" data-tab="about" onclick="switchTab('about')">About Gridfinity</button>
@@ -638,18 +634,6 @@
   <div class="tab-content" id="planning-tab">
     <div class="planning-layout">
       <div class="planning-section">
-        <h3>Units</h3>
-        <div class="unit-toggle">
-          <label class="unit-option">
-            <input type="radio" name="units" value="mm" checked onchange="onUnitsChange()">
-            Metric (mm)
-          </label>
-          <label class="unit-option">
-            <input type="radio" name="units" value="inches" onchange="onUnitsChange()">
-            US (inches)
-          </label>
-        </div>
-
         <h3>Drawer Dimensions</h3>
         <div class="input-group">
           <div class="input-field">
@@ -669,6 +653,18 @@
             <input type="number" id="drawerHeight" value="82.55" step="any" oninput="onDimensionsChange()">
             <span class="input-suffix" id="heightSuffix">mm</span>
           </div>
+        </div>
+
+        <h3>Units</h3>
+        <div class="unit-toggle">
+          <label class="unit-option">
+            <input type="radio" name="units" value="mm" checked onchange="onUnitsChange()">
+            Metric (mm)
+          </label>
+          <label class="unit-option">
+            <input type="radio" name="units" value="inches" onchange="onUnitsChange()">
+            US (inches)
+          </label>
         </div>
 
         <h3>Your Printer</h3>
@@ -1028,17 +1024,18 @@
      */
     function getFitQuality(widthGapMm, depthGapMm) {
       const maxGap = Math.max(widthGapMm, depthGapMm);
+      const gapText = `(${Math.round(maxGap)}mm)`;
 
       if (maxGap < 5) {
-        return { description: 'Tight fit - minimal gap', quality: 'good' };
+        return { description: `Tight fit - minimal gap ${gapText}`, quality: 'good' };
       }
       if (maxGap < 15) {
-        return { description: 'Good fit - small gap', quality: 'good' };
+        return { description: `Good fit - small gap ${gapText}`, quality: 'good' };
       }
       if (maxGap < 30) {
-        return { description: 'Moderate fit - noticeable gap', quality: 'moderate' };
+        return { description: `Moderate fit - noticeable gap ${gapText}`, quality: 'moderate' };
       }
-      return { description: 'Loose fit - consider filler', quality: 'loose' };
+      return { description: `Loose fit - consider filler ${gapText}`, quality: 'loose' };
     }
 
     /**
@@ -1516,28 +1513,26 @@
       const cellSize = Math.min(
         Math.floor(maxWidth / gridCols),
         Math.floor(maxHeight / gridRows),
-        30 // Max cell size
+        20 // Max cell size
       );
 
-      // Set up the grid
-      vizContainer.style.gridTemplateColumns = `repeat(${opt.countX}, 1fr)`;
-      vizContainer.style.gridTemplateRows = `repeat(${opt.countY}, 1fr)`;
-      vizContainer.style.width = `${gridCols * cellSize + (opt.countX + 1) * 2}px`;
-      vizContainer.style.height = `${gridRows * cellSize + (opt.countY + 1) * 2}px`;
+      // Set up the grid for individual cells
+      vizContainer.style.gridTemplateColumns = `repeat(${gridCols}, ${cellSize}px)`;
+      vizContainer.style.gridTemplateRows = `repeat(${gridRows}, ${cellSize}px)`;
+      vizContainer.style.width = 'auto';
+      vizContainer.style.height = 'auto';
 
-      // Create baseplate cells
+      // Create individual grid cells with baseplate coloring
       let html = '';
-      for (let y = 0; y < opt.countY; y++) {
-        for (let x = 0; x < opt.countX; x++) {
-          const isAlt = (x + y) % 2 === 1;
-          const plateWidth = opt.width * cellSize;
-          const plateHeight = opt.height * cellSize;
-          html += `
-            <div class="baseplate-cell ${isAlt ? 'alt' : ''}"
-                 style="width: ${plateWidth}px; height: ${plateHeight}px;">
-              ${opt.width}×${opt.height}
-            </div>
-          `;
+      for (let y = 0; y < gridRows; y++) {
+        for (let x = 0; x < gridCols; x++) {
+          // Determine which baseplate this cell belongs to
+          const plateX = Math.floor(x / opt.width);
+          const plateY = Math.floor(y / opt.height);
+          const isAltPlate = (plateX + plateY) % 2 === 1;
+
+          const classes = `grid-cell ${isAltPlate ? 'plate-b' : 'plate-a'}`;
+          html += `<div class="${classes}"></div>`;
         }
       }
       vizContainer.innerHTML = html;
@@ -1644,18 +1639,9 @@
 
       grid = newGrid;
 
-      // Update subtitle
-      updateSubtitle();
-
       // Re-render
       renderGrid();
       updateStats();
-    }
-
-    function updateSubtitle() {
-      const totalCells = GRID_WIDTH * GRID_HEIGHT;
-      document.getElementById('gridSubtitle').textContent =
-        `${GRID_WIDTH}x${GRID_HEIGHT} Grid (${totalCells} cells)`;
     }
 
     function confirmNewDrawer() {
@@ -1731,7 +1717,6 @@
 
       grid = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(null));
 
-      updateSubtitle();
       updateResults();
       renderGrid();
       renderBinOptions();
@@ -2013,7 +1998,6 @@
       if (layout.gridWidth && layout.gridHeight) {
         GRID_WIDTH = layout.gridWidth;
         GRID_HEIGHT = layout.gridHeight;
-        updateSubtitle();
       }
 
       clearGrid();
