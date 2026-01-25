@@ -1,14 +1,18 @@
-# OS files
+# macOS
 .DS_Store
-Thumbs.db
 
-# Editor files
-*.swp
-*.swo
-*~
+# IDEs
 .idea/
 .vscode/
+*.swp
+*.swo
 
-# Temporary files
-*.tmp
-*.bak
+# Node (if ever added)
+node_modules/
+
+# Logs
+*.log
+
+# Local dev
+.env
+.env.local
