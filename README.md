@@ -1,7 +1,2 @@
-# Misc Projects
-
-A collection of miscellaneous projects.
-
-## Projects
-
-- [gridfinity/](gridfinity/) - Gridfinity project
+# gridfinity_yo_drawers
+Gridfinity Drawer Visualizer - Plan Your Bin Layout
