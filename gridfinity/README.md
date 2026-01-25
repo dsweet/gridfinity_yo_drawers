@@ -1,45 +1,46 @@
-# Gridfinity
+# Gridfinity Yo' Drawers!
 
-## Overview
+*Fix yo' drawer, Fix yo' life*
 
-Organizing a drawer using the Gridfinity system with a bin layout visualizer tool.
+A browser-based tool for planning Gridfinity drawer layouts. Enter your drawer dimensions, see how many grid units fit, get baseplate recommendations based on your printer, and visually arrange bins before you print.
 
-## Drawer Specs
+## Features
 
-- **Grid size:** 9x12 (108 cells total)
-- **Drawer height:** 3.25"
-- **Max bin height:** 50mm
+- **Plan Your Base** — Enter drawer dimensions (mm or inches), select your printer, and see:
+  - How many grid units fit
+  - Gap/fit quality analysis
+  - Baseplate size recommendations sorted by fewest prints needed
+  - Visual preview of baseplate layout
 
-## Baseplates
+- **Layout Your Bins** — Arrange bins on your grid:
+  - Common bin sizes (1×1 to 5×5)
+  - Custom bin sizes
+  - Save/load layouts
+  - Print a bin shopping list
 
-- Type: Refined/Light 3x4
-- Needed: 9 total (3x3 arrangement to fill 9x12)
-- Printed: 6
-- Remaining: 3
+- **About Gridfinity** — Quick intro to the system with links to get started
 
-## Bins
+## Usage
 
-Currently testing bins at height "5" (~39mm):
-- 1x1
-- 1x2
-- 1x4
-- 2x2
+Just open `visualizer.html` in a browser. No server or build step required.
 
-## Plans
+Or serve it locally:
+```bash
+python3 -m http.server 8000
+# then open http://localhost:8000/visualizer.html
+```
 
-Build a visualizer tool to:
-- Display the 9x12 grid
-- Place bins of various sizes
-- Experiment with different layout combinations
-- Help decide what bins to print
+## What is Gridfinity?
 
-## TODO
+Gridfinity is an open-source modular storage system created by [Zack Freedman](https://github.com/zackfreedman) in 2022. Everything is based on a 42mm grid unit—any bin from any designer works with any baseplate.
 
-- [ ] Print remaining 3 baseplates
-- [ ] Finish test bin prints
-- [x] Build grid visualizer
+- [Original GitHub repo](https://github.com/zackfreedman/gridfinity)
+- [Zack's introduction video](https://youtu.be/ra_9zU-mnl8)
 
-## Notes
+## License
 
-- Gridfinity unit = 42mm
-- Height unit ~7mm (height "5" = ~39mm)
+[PolyForm Noncommercial 1.0.0](LICENSE) — Free for personal, educational, and non-commercial use.
+
+## Credits
+
+Built with [Claude Code](https://claude.ai/code)
