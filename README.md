@@ -2,6 +2,8 @@
 
 *Fix yo' drawer, Fix yo' life*
 
+**[Try it live](https://dsweet.github.io/gridfinity_yo_drawers/visualizer.html)**
+
 A browser-based tool for planning Gridfinity drawer layouts. Enter your drawer dimensions, see how many grid units fit, get baseplate recommendations based on your printer, and visually arrange bins before you print.
 
 ## Features
