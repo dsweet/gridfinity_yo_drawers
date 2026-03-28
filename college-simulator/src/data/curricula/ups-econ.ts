@@ -98,7 +98,7 @@ export const upsEcon: Curriculum = {
     { id: 'HIST201', title: 'Ancient Mediterranean World', description: 'Greece, Rome, Egypt, and Persia. Politics, philosophy, war, and cultural exchange in the ancient world.', credits: 1, category: 'elective', interestTags: ['history', 'classics'], prereqs: [], genEdReqs: ['social-science'] },
     { id: 'HIST202', title: 'Medieval Europe', description: 'Fall of Rome through the Renaissance. Feudalism, the Church, Crusades, Black Death, and cultural revival.', credits: 1, category: 'elective', interestTags: ['history'], prereqs: [], genEdReqs: ['social-science'] },
     { id: 'HIST275', title: 'Modern Europe: 1789 to Present', description: 'French Revolution to the EU. Nationalism, industrialization, two world wars, and European integration.', credits: 1, category: 'elective', interestTags: ['history'], prereqs: [], genEdReqs: ['social-science'] },
-    { id: 'HIST215', title: 'Latin American History', description: 'Pre-Columbian civilizations through modern revolutions. Colonialism, independence, and contemporary challenges.', credits: 1, category: 'elective', interestTags: ['history'], prereqs: [], genEdReqs: [] },
+    { id: 'HIST210', title: 'Latin American History', description: 'Pre-Columbian civilizations through modern revolutions. Colonialism, independence, and contemporary challenges.', credits: 1, category: 'elective', interestTags: ['history'], prereqs: [], genEdReqs: [] },
     { id: 'HIST250', title: 'The Middle East in Modern Times', description: 'Ottoman Empire to the present. Nationalism, oil, the Arab-Israeli conflict, and the Arab Spring.', credits: 1, category: 'elective', interestTags: ['history'], prereqs: [], genEdReqs: [] },
 
     // ===== ASIAN AMERICAN / IDENTITY =====
