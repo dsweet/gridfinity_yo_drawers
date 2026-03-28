@@ -163,5 +163,7 @@ export const uclaEcon: Curriculum = {
     { id: 'LS7A', title: 'Genetics, Evolution & Ecology', description: 'Life science for non-majors. DNA, heredity, natural selection, biodiversity, and ecosystems.', credits: 5, category: 'gen-ed', interestTags: [], prereqs: [], genEdReqs: ['natural-science'] },
     { id: 'CHEM14A', title: 'General Chemistry', description: 'Atomic structure, bonding, reactions, and equilibrium. Lab included.', credits: 5, category: 'gen-ed', interestTags: [], prereqs: [], genEdReqs: ['natural-science'] },
     { id: 'ETHNSTD1', title: 'Introduction to Ethnic Studies', description: 'Race, ethnicity, and inequality in the United States. Structural analysis and social movements.', credits: 5, category: 'gen-ed', interestTags: ['cultural-studies'], prereqs: [], genEdReqs: ['diversity'] },
+    { id: 'ENGCOMP3H', title: 'English Composition (Honors)', description: 'Honors-level college writing. Advanced argumentation, research synthesis, and critical analysis for high-achieving students.', credits: 5, category: 'gen-ed', interestTags: [], prereqs: [], genEdReqs: ['writing'] },
+    { id: 'LGBTQS5', title: 'Introduction to LGBTQ Studies', description: 'History, culture, and politics of LGBTQ communities. Identity, representation, activism, and intersectionality.', credits: 5, category: 'gen-ed', interestTags: ['cultural-studies'], prereqs: [], genEdReqs: ['diversity'] },
   ],
 };
